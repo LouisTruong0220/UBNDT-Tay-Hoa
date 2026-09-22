@@ -5,8 +5,8 @@ Do Công ty Cổ phần Tập đoàn Roboworld phát triển.
 
 | | |
 |---|---|
-| Phiên bản | **1.1** (mã 2) — ngày 22/09/2026 |
-| Tệp cài | [`tro-ly-hanh-chinh-tay-hoa-v1.1.apk`](tro-ly-hanh-chinh-tay-hoa-v1.1.apk) |
+| Phiên bản | **1.2** (mã 3) — ngày 22/09/2026 |
+| Tệp cài | [`tro-ly-hanh-chinh-tay-hoa-v1.2.apk`](tro-ly-hanh-chinh-tay-hoa-v1.2.apk) |
 | Tên gói | `vn.roboworld.hcc` |
 | Máy | GreetingBot Nova (OrionStar), Android 9 |
 
@@ -25,7 +25,7 @@ Do Công ty Cổ phần Tập đoàn Roboworld phát triển.
 
    ```
    adb devices
-   adb install -r tro-ly-hanh-chinh-tay-hoa-v1.1.apk
+   adb install -r tro-ly-hanh-chinh-tay-hoa-v1.2.apk
    ```
 
    `adb devices` phải hiện đúng một dòng có chữ `device`. Cài xong sẽ hiện `Success`.
@@ -94,7 +94,16 @@ kèm nguồn tra cứu**.
 
 ## Nhật ký phiên bản
 
-### 1.1 — 22/09/2026
+### 1.2 — 22/09/2026 · đã chạy thử trên robot thật
+- **Sửa lỗi nghiêm trọng của bản 1.1:** robot tự cắt tiếng của chính nó ở các câu hỏi lại
+  ("Cần làm rõ…") — 6 lần trong 2 phút khi thử trên máy. **Đừng dùng bản 1.1.**
+- Hiểu câu nói lệch chữ: *"chấm dứt hoạt động kinh doanh"* nay khớp đúng thủ tục
+  *"chấm dứt hoạt động hộ kinh doanh"*, trả lời trong 1 giây (trước: chờ 10 giây rồi báo chưa có)
+- Câu hỏi lại lấy từ dữ liệu trong máy nay hiện **nút bấm**, và robot không còn đọc ký hiệu ra loa
+- Kiểm trên robot: 9/9 loại câu đi đúng hướng · tắt Wi-Fi vẫn trả lời câu đã nạp · đặt giữa phòng
+  ồn 60 giây robot không tự nói câu nào
+
+### 1.1 — 22/09/2026 · ⚠ có lỗi tự cắt tiếng, đã thay bằng 1.2 (lưu ở `ban-cu/`)
 - Mở rộng từ 5 lên **9 nhóm việc · 37 việc**, nạp sẵn đủ 37/37
 - Thêm nhóm **Kết hôn**, **Kinh doanh** (hộ kinh doanh cá thể), **Chính sách** (hộ nghèo, trợ cấp,
   người có công, mai táng phí, trẻ mồ côi), **Khiếu nại**
