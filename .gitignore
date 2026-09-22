@@ -1,0 +1,4 @@
+# Khoá tra mạng KHÔNG BAO GIỜ vào kho công khai này
+tra-mang.txt
+*.key
+.env
