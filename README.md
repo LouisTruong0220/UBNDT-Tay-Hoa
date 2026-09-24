@@ -5,8 +5,8 @@ Do Công ty Cổ phần Tập đoàn Roboworld phát triển.
 
 | | |
 |---|---|
-| Phiên bản | **1.3** (mã 4) — ngày 24/09/2026 |
-| Tệp cài | [`tro-ly-hanh-chinh-tay-hoa-v1.3.apk`](tro-ly-hanh-chinh-tay-hoa-v1.3.apk) |
+| Phiên bản | **1.4** (mã 5) — ngày 24/09/2026 |
+| Tệp cài | [`tro-ly-hanh-chinh-tay-hoa-v1.4.apk`](tro-ly-hanh-chinh-tay-hoa-v1.4.apk) |
 | Tên gói | `vn.roboworld.hcc` |
 | Máy | GreetingBot Nova (OrionStar), Android 9 |
 
@@ -25,7 +25,7 @@ Do Công ty Cổ phần Tập đoàn Roboworld phát triển.
 
    ```
    adb devices
-   adb install -r tro-ly-hanh-chinh-tay-hoa-v1.3.apk
+   adb install -r tro-ly-hanh-chinh-tay-hoa-v1.4.apk
    ```
 
    `adb devices` phải hiện đúng một dòng có chữ `device`. Cài xong sẽ hiện `Success`.
@@ -41,9 +41,11 @@ Do Công ty Cổ phần Tập đoàn Roboworld phát triển.
 
 | Kiểm | Đạt khi |
 |---|---|
-| Màn chính | hiện **9 nhóm việc**: Khai sinh · Kết hôn · Hộ tịch khác · Cư trú · Chứng thực · Đất đai · Kinh doanh · Chính sách · Khiếu nại |
-| Bấm một nhóm, chọn một việc | nội dung hiện ngay, robot đọc tóm tắt |
-| Bấm nút micro rồi nói | robot nghe và trả lời — **người nói đứng đối diện robot** |
+| Màn chờ | mặt robot + nút vàng **"Chạm vào màn hình để bắt đầu"** + dòng *hoặc nói "Xin chào"* |
+| Chạm màn hình | robot chào một câu, mở **màn chính 5 ô**: Tra cứu thủ tục · Giao tiếp AI · Dẫn đường · Giải trí · Thông tin |
+| Tra cứu thủ tục | hiện **9 nhóm việc**; chọn một việc → nội dung hiện ngay, robot đọc tóm tắt |
+| Giao tiếp AI → bấm micro rồi nói | robot nghe và trả lời — **người nói đứng đối diện robot** |
+| Đứng trước robot, nói "Xin chào" (ở màn chờ) | robot chào lại và mở màn chính |
 
 **Bấm micro mà robot không nghe?** Micro của máy có thể đang bị tắt từ trước. Chạy:
 
@@ -60,17 +62,68 @@ rồi tắt và mở lại app từ màn hình chính.
 
 ## Robot làm được gì
 
-- **Tra cứu 37 việc** thuộc 9 nhóm, nội dung nạp sẵn trong máy — **trả lời tức thì, không cần mạng**.
-- **Hỏi bằng giọng nói** — bấm nút micro, nói xong robot tự tắt micro và trả lời.
-- Nội dung thủ tục lấy từ một nguồn duy nhất và **giữ nguyên văn**, kèm danh mục căn cứ pháp lý.
-- **Câu đời thường** ngoài phạm vi thủ tục (thời tiết, đường đi…) có thể tra trên Internet — xem mục dưới.
+| Chức năng | Mô tả |
+|---|---|
+| **Tra cứu thủ tục** | 37 việc thuộc 9 nhóm, nạp sẵn trong máy — **trả lời tức thì, không cần mạng**. Chỉ chạm, không có ô hỏi AI. Nội dung giữ **nguyên văn** từ một nguồn duy nhất, kèm căn cứ pháp lý |
+| **Giao tiếp AI** | Bấm micro rồi nói. Robot hiểu cả khi người dân kể hoàn cảnh (*"Bố tôi vừa mất thì làm giấy tờ gì"*) và đọc đúng thủ tục đã nạp |
+| **Dẫn đường** | **Chưa cài đặt** — màn hình và robot nói thẳng là đang cài đặt, mời hỏi cán bộ |
+| **Giải trí** | **Robot nhảy múa** khoảng 35 giây theo nhạc: lắc thân, gật đầu, đổi nét mặt khớp phách. **Đố vui thủ tục** 5 câu, câu hỏi sinh từ chính dữ liệu thủ tục đã nạp |
+| **Thông tin** | Cán bộ Trung tâm + hình ảnh, video giới thiệu — xem mục *Cập nhật thông tin Trung tâm* |
+| **"Xin chào"** | Ở màn chờ, người đứng trước robot nói "Xin chào" → robot chào lại và mở màn chính |
+| **Quay về phía người dùng** | Rời màn chờ là robot xoay thân đối diện người đang đứng trước màn hình (trong khoảng 2 m) |
+
+⚠ **Robot có xoay thân** (lúc quay về phía người dùng và lúc nhảy múa). Để trống quanh robot
+khoảng **1 m**. Lúc đang nhảy, **chạm vào bất kỳ đâu trên màn hình là robot dừng**.
 
 ## Robot CHƯA làm được gì
 
 - Lệ phí từng thủ tục, file mẫu đơn, phân công quầy — robot nói thẳng là chưa có, mời hỏi quầy.
-- Dẫn đường tới quầy — **đang tắt**, chờ sơ đồ quầy của Trung tâm.
+- Dẫn đường tới quầy — **chưa cài đặt**, chờ sơ đồ quầy của Trung tâm.
+- Thông tin cán bộ, ảnh và video Trung tâm — **chưa có**, màn hình hiện "Đang cập nhật" cho tới khi
+  Trung tâm gửi tư liệu.
 
 Robot được thiết kế để **thà nói "tôi chưa rõ" còn hơn trả lời một thủ tục gần đúng**.
+
+---
+
+## Cập nhật thông tin Trung tâm
+
+Màn **Thông tin** đọc một tệp trên thẻ nhớ robot — **không phải cài lại app**. Trên máy tính, tạo
+thư mục `thong-tin` gồm tệp `thong-tin.json` và ảnh/video:
+
+```
+thong-tin/
+  thong-tin.json
+  can-bo/nguyen-van-a.jpg        ← ảnh cán bộ, nên ảnh vuông hoặc dọc
+  trung-tam/anh-1.jpg
+  trung-tam/video-gioi-thieu.mp4 ← video phải mã hoá H.264
+```
+
+Khuôn `thong-tin.json` (thay phần trong ngoặc bằng thông tin thật):
+
+```json
+{
+  "ten_don_vi": "Trung tâm Phục vụ Hành chính công xã Tây Hòa",
+  "can_bo": [
+    { "ten": "(Họ và tên)", "chuc_vu": "(Chức vụ)", "mo_ta": "(Phụ trách việc gì, quầy số mấy)",
+      "anh": "can-bo/ten-tep-anh.jpg" }
+  ],
+  "gioi_thieu": {
+    "tieu_de": "(Tiêu đề)",
+    "doan": ["(Đoạn giới thiệu thứ nhất)", "(Đoạn thứ hai)"],
+    "media": [ { "loai": "anh", "tep": "trung-tam/anh-1.jpg" },
+               { "loai": "video", "tep": "trung-tam/video-gioi-thieu.mp4" } ]
+  }
+}
+```
+
+Đẩy sang robot rồi **tắt và mở lại app từ màn hình chính**:
+
+```
+adb push thong-tin /sdcard/Android/data/vn.roboworld.hcc/files/
+```
+
+Tệp sai cú pháp thì màn Thông tin vẫn hiện "Đang cập nhật" — không làm hỏng app.
 
 ---
 
@@ -94,7 +147,20 @@ kèm nguồn tra cứu**.
 
 ## Nhật ký phiên bản
 
-### 1.3 — 24/09/2026 · đã chạy thử trên robot thật
+### 1.4 — 24/09/2026 · đã chạy thử trên robot thật
+- **Màn chính mới — 5 chức năng:** Tra cứu thủ tục · Giao tiếp AI · Dẫn đường · Giải trí · Thông tin,
+  kèm nút **"Về màn chờ"**. Màn Tra cứu chỉ chạm, không còn ô hỏi AI và nút micro.
+- **"Xin chào"** ở màn chờ đánh thức robot: robot chào lại trong chưa đầy nửa giây và mở màn chính.
+  Chạm màn hình rời màn chờ cũng có một câu chào.
+- **Quay về phía người dùng:** rời màn chờ là robot xoay thân đối diện người đứng trước màn hình.
+- **Giải trí:** robot nhảy múa theo nhạc — động tác và nét mặt khớp phách (đo nhịp ~129 BPM từ chính
+  bài nhạc); đố vui thủ tục 5 câu, câu hỏi lấy từ dữ liệu đã nạp.
+- **Thông tin:** cán bộ Trung tâm và ảnh/video giới thiệu, cập nhật bằng tệp trên thẻ nhớ.
+- **Dẫn đường:** có ô trên màn chính, hiện "đang cài đặt" — chờ sơ đồ quầy.
+- Sửa: nút ▶ xám hiện chồng lên mặt robot mỗi lần đổi nét mặt.
+
+
+### 1.3 — 24/09/2026 · đã thay bằng 1.4 (lưu ở `ban-cu/`)
 - **Hiểu câu nói tự nhiên:** người dân kể hoàn cảnh thay vì gọi tên thủ tục (*"Bố tôi vừa mất thì
   làm giấy tờ gì"*, *"Tôi muốn chia mảnh đất cho hai đứa con"*) — robot nhận ra đúng thủ tục
   (khai tử, tách thửa) và đọc nguyên văn dữ liệu đã nạp. Thử 7/7 câu đúng, mỗi câu dưới 2 giây.
