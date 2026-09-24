@@ -5,8 +5,8 @@ Do Công ty Cổ phần Tập đoàn Roboworld phát triển.
 
 | | |
 |---|---|
-| Phiên bản | **1.2** (mã 3) — ngày 22/09/2026 |
-| Tệp cài | [`tro-ly-hanh-chinh-tay-hoa-v1.2.apk`](tro-ly-hanh-chinh-tay-hoa-v1.2.apk) |
+| Phiên bản | **1.3** (mã 4) — ngày 24/09/2026 |
+| Tệp cài | [`tro-ly-hanh-chinh-tay-hoa-v1.3.apk`](tro-ly-hanh-chinh-tay-hoa-v1.3.apk) |
 | Tên gói | `vn.roboworld.hcc` |
 | Máy | GreetingBot Nova (OrionStar), Android 9 |
 
@@ -25,7 +25,7 @@ Do Công ty Cổ phần Tập đoàn Roboworld phát triển.
 
    ```
    adb devices
-   adb install -r tro-ly-hanh-chinh-tay-hoa-v1.2.apk
+   adb install -r tro-ly-hanh-chinh-tay-hoa-v1.3.apk
    ```
 
    `adb devices` phải hiện đúng một dòng có chữ `device`. Cài xong sẽ hiện `Success`.
@@ -94,7 +94,17 @@ kèm nguồn tra cứu**.
 
 ## Nhật ký phiên bản
 
-### 1.2 — 22/09/2026 · đã chạy thử trên robot thật
+### 1.3 — 24/09/2026 · đã chạy thử trên robot thật
+- **Hiểu câu nói tự nhiên:** người dân kể hoàn cảnh thay vì gọi tên thủ tục (*"Bố tôi vừa mất thì
+  làm giấy tờ gì"*, *"Tôi muốn chia mảnh đất cho hai đứa con"*) — robot nhận ra đúng thủ tục
+  (khai tử, tách thửa) và đọc nguyên văn dữ liệu đã nạp. Thử 7/7 câu đúng, mỗi câu dưới 2 giây.
+  Trí tuệ nhân tạo chỉ chọn thủ tục, **không viết một chữ nội dung nào**.
+- Câu ngoài phạm vi (thời tiết…) và câu hỏi việc nội bộ Trung tâm (giờ mở cửa, cán bộ trực) trả
+  lời trong **dưới 2 giây** (trước: 8–12 giây)
+- Khi phải tra thêm lâu, robot nói *"anh chị chờ tôi tra thêm một chút"* sau 2 giây thay vì đứng im
+- Mất mạng: câu ngoài dữ liệu báo "chưa có" sau khoảng 4 giây (trước: 25 giây)
+
+### 1.2 — 22/09/2026 · đã thay bằng 1.3 (lưu ở `ban-cu/`)
 - **Sửa lỗi nghiêm trọng của bản 1.1:** robot tự cắt tiếng của chính nó ở các câu hỏi lại
   ("Cần làm rõ…") — 6 lần trong 2 phút khi thử trên máy. **Đừng dùng bản 1.1.**
 - Hiểu câu nói lệch chữ: *"chấm dứt hoạt động kinh doanh"* nay khớp đúng thủ tục
