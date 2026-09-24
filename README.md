@@ -5,8 +5,8 @@ Do Công ty Cổ phần Tập đoàn Roboworld phát triển.
 
 | | |
 |---|---|
-| Phiên bản | **1.4** (mã 5) — ngày 24/09/2026 |
-| Tệp cài | [`tro-ly-hanh-chinh-tay-hoa-v1.4.apk`](tro-ly-hanh-chinh-tay-hoa-v1.4.apk) |
+| Phiên bản | **1.5** (mã 6) — ngày 24/09/2026 |
+| Tệp cài | [`tro-ly-hanh-chinh-tay-hoa-v1.5.apk`](tro-ly-hanh-chinh-tay-hoa-v1.5.apk) |
 | Tên gói | `vn.roboworld.hcc` |
 | Máy | GreetingBot Nova (OrionStar), Android 9 |
 
@@ -25,7 +25,7 @@ Do Công ty Cổ phần Tập đoàn Roboworld phát triển.
 
    ```
    adb devices
-   adb install -r tro-ly-hanh-chinh-tay-hoa-v1.4.apk
+   adb install -r tro-ly-hanh-chinh-tay-hoa-v1.5.apk
    ```
 
    `adb devices` phải hiện đúng một dòng có chữ `device`. Cài xong sẽ hiện `Success`.
@@ -65,7 +65,7 @@ rồi tắt và mở lại app từ màn hình chính.
 | Chức năng | Mô tả |
 |---|---|
 | **Tra cứu thủ tục** | 37 việc thuộc 9 nhóm, nạp sẵn trong máy — **trả lời tức thì, không cần mạng**. Chỉ chạm, không có ô hỏi AI. Nội dung giữ **nguyên văn** từ một nguồn duy nhất, kèm căn cứ pháp lý |
-| **Giao tiếp AI** | Bấm micro rồi nói. Robot hiểu cả khi người dân kể hoàn cảnh (*"Bố tôi vừa mất thì làm giấy tờ gì"*) và đọc đúng thủ tục đã nạp |
+| **Giao tiếp AI** | Bấm micro rồi nói. Câu trả lời do **trợ lý AgentOS của nền tảng OrionStar** soạn, có tra **kho kiến thức trên Robot Portal**. Câu chính trị, tình huống khẩn cấp, xin quyết định hồ sơ vẫn do app chặn và trả lời bằng câu soạn sẵn |
 | **Dẫn đường** | **Chưa cài đặt** — màn hình và robot nói thẳng là đang cài đặt, mời hỏi cán bộ |
 | **Giải trí** | **Robot nhảy múa** khoảng 35 giây theo nhạc: lắc thân, gật đầu, đổi nét mặt khớp phách. **Đố vui thủ tục** 5 câu, câu hỏi sinh từ chính dữ liệu thủ tục đã nạp |
 | **Thông tin** | Cán bộ Trung tâm + hình ảnh, video giới thiệu — xem mục *Cập nhật thông tin Trung tâm* |
@@ -83,6 +83,25 @@ khoảng **1 m**. Lúc đang nhảy, **chạm vào bất kỳ đâu trên màn h
   Trung tâm gửi tư liệu.
 
 Robot được thiết kế để **thà nói "tôi chưa rõ" còn hơn trả lời một thủ tục gần đúng**.
+
+---
+
+## Giao tiếp AI dùng AgentOS + kho Portal — cần biết
+
+Từ bản 1.5, câu hỏi bằng giọng nói ở màn **Giao tiếp AI** do AgentOS trả lời, có tra kho kiến thức
+trên **Robot Portal**. Màn **Tra cứu thủ tục** không đổi: vẫn đọc nguyên văn dữ liệu nạp sẵn trong máy.
+
+Đo trên robot ngày 24/09/2026:
+
+| | Kết quả |
+|---|---|
+| Thời gian bắt đầu trả lời | thường **5–12 giây** (màn Tra cứu: dưới 1 giây) |
+| Kho Portal | AgentOS **có** tra kho (ghi nhận trong nhật ký hệ thống), nhưng chỉ ở một phần câu hỏi — câu còn lại mô hình tự trả lời |
+| Nội dung | câu trả lời phụ thuộc kho Portal. Đã gặp: nhắc "sổ hộ khẩu" (đã bỏ từ 2023), nêu giờ mở cửa không có nguồn |
+
+⚠ **Kho Portal cấu hình theo tài khoản doanh nghiệp — dùng chung cho mọi robot trong tài khoản.**
+Muốn robot Tây Hòa trả lời đúng thủ tục của Tây Hòa, cần nạp tài liệu thủ tục lên Portal và rà lại
+câu trả lời trước khi đưa ra phục vụ.
 
 ---
 
@@ -147,7 +166,15 @@ kèm nguồn tra cứu**.
 
 ## Nhật ký phiên bản
 
-### 1.4 — 24/09/2026 · đã chạy thử trên robot thật
+### 1.5 — 24/09/2026 · đã chạy thử trên robot thật
+- **Giao tiếp AI chuyển sang AgentOS + kho kiến thức Robot Portal** (theo yêu cầu). Giữ các lớp chặn
+  của app: chính trị · khẩn cấp · xin quyết định hồ sơ. Robot chỉ trả lời trong 30 giây sau khi bấm
+  micro — không tự nói khi nghe người trong phòng trò chuyện.
+- Mọi tính năng của 1.4 giữ nguyên: màn chính 5 chức năng, "Xin chào", quay về phía người dùng,
+  nhảy múa, đố vui, thông tin Trung tâm. Tra cứu thủ tục vẫn đọc nguyên văn dữ liệu nạp sẵn.
+
+
+### 1.4 — 24/09/2026 · đã thay bằng 1.5 (lưu ở `ban-cu/`) — Giao tiếp AI dùng dữ liệu nạp sẵn, không dùng Portal
 - **Màn chính mới — 5 chức năng:** Tra cứu thủ tục · Giao tiếp AI · Dẫn đường · Giải trí · Thông tin,
   kèm nút **"Về màn chờ"**. Màn Tra cứu chỉ chạm, không còn ô hỏi AI và nút micro.
 - **"Xin chào"** ở màn chờ đánh thức robot: robot chào lại trong chưa đầy nửa giây và mở màn chính.
