@@ -1,0 +1,23 @@
+{
+  "_huong_dan": "KHUÔN MẪU — chép thành thong-tin.json, điền thông tin thật do Trung tâm cung cấp, rồi đẩy cả thư mục thong-tin/ sang robot: adb push thong-tin /sdcard/Android/data/vn.roboworld.hcc/files/ — xong tắt và mở lại app từ màn hình chính. Đường dẫn ảnh/video tính từ thư mục thong-tin/. Ảnh cán bộ nên dọc 3:4; video phải là H.264 (WebView không chạy HEVC).",
+  "ten_don_vi": "Trung tâm Phục vụ Hành chính công xã Tây Hòa",
+  "can_bo": [
+    {
+      "ten": "(Họ và tên cán bộ)",
+      "chuc_vu": "(Chức vụ — ví dụ: Giám đốc Trung tâm)",
+      "mo_ta": "(Một dòng: phụ trách lĩnh vực nào, ngồi quầy số mấy)",
+      "anh": "can-bo/ten-tep-anh.jpg"
+    }
+  ],
+  "gioi_thieu": {
+    "tieu_de": "(Tiêu đề giới thiệu)",
+    "doan": [
+      "(Đoạn giới thiệu thứ nhất)",
+      "(Đoạn giới thiệu thứ hai — xoá nếu không cần)"
+    ],
+    "media": [
+      { "loai": "anh",   "tep": "trung-tam/anh-1.jpg" },
+      { "loai": "video", "tep": "trung-tam/video-gioi-thieu.mp4" }
+    ]
+  }
+}

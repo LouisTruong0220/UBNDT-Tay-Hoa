@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Để bảng tự chẩn đoán biết robot đang Wi-Fi, 4G hay mất mạng (11/09/2026).
+         Quyền thường, máy tự cấp, không hỏi người dùng. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="com.ainirobot.coreservice.robotSettingProvider"/>
+    <!-- Bắt buộc cho phần giọng nói của Agent SDK -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+    <application
+        android:name=".MainApplication"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.HccTrungTam"
+        android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="false">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|screenSize|keyboardHidden">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+            <!-- Cho phép app tự khởi động khi bật máy.
+                 Còn phải bật thêm ở: Cài đặt (vuốt 3 ngón) → Cài đặt nhà phát triển
+                 → Chương trình khởi động cùng máy -->
+            <intent-filter>
+                <action android:name="action.orionstar.default.app"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

@@ -1,0 +1,226 @@
+{
+ "nguon": "https://thutuc.hanhchinhso.ai.vn/api/chat/stream",
+ "cap_nhat": "20/09/2026 17:23",
+ "linh_vuc": {
+  "khai-sinh": {
+   "ten": "Khai sinh",
+   "phu": "Cho con mới sinh · khai muộn",
+   "icon": "👶",
+   "cau_moi": "Thủ tục khai sinh cần giấy tờ gì?",
+   "muc": [
+    {
+     "nhan": "Thủ tục đăng ký khai sinh đúng hạn cần giấy tờ gì và nộp ở đâu?",
+     "hoi": "Thủ tục đăng ký khai sinh đúng hạn cần giấy tờ gì và nộp ở đâu?"
+    },
+    {
+     "nhan": "Thủ tục đăng ký khai sinh quá hạn cần giấy tờ gì?",
+     "hoi": "Thủ tục đăng ký khai sinh quá hạn cần giấy tờ gì?"
+    },
+    {
+     "nhan": "Thủ tục đăng ký khai sinh khi cha mẹ chưa đăng ký kết hôn cần giấy tờ gì?",
+     "hoi": "Thủ tục đăng ký khai sinh khi cha mẹ chưa đăng ký kết hôn cần giấy tờ gì?"
+    },
+    {
+     "nhan": "Thủ tục đăng ký khai sinh cho trẻ sinh ra do mang thai hộ cần giấy tờ gì?",
+     "hoi": "Thủ tục đăng ký khai sinh cho trẻ sinh ra do mang thai hộ cần giấy tờ gì?"
+    },
+    {
+     "nhan": "Thủ tục đăng ký khai sinh có yếu tố nước ngoài cần giấy tờ gì?",
+     "hoi": "Thủ tục đăng ký khai sinh có yếu tố nước ngoài cần giấy tờ gì?"
+    }
+   ]
+  },
+  "ket-hon": {
+   "ten": "Kết hôn",
+   "phu": "Đăng ký · xác nhận tình trạng hôn nhân",
+   "icon": "💍",
+   "cau_moi": "xác nhận tình trạng hôn nhân",
+   "muc": [
+    {
+     "nhan": "Thủ tục xin Giấy xác nhận tình trạng hôn nhân để đăng ký kết hôn cần giấy tờ gì và nộp ở đâu?",
+     "hoi": "Thủ tục xin Giấy xác nhận tình trạng hôn nhân để đăng ký kết hôn cần giấy tờ gì và nộp ở đâu?"
+    },
+    {
+     "nhan": "Thủ tục xin Giấy xác nhận tình trạng hôn nhân dùng vào mục đích khác (mua bán nhà đất, vay vốn) cần giấy tờ gì?",
+     "hoi": "Thủ tục xin Giấy xác nhận tình trạng hôn nhân dùng vào mục đích khác (mua bán nhà đất, vay vốn) cần giấy tờ gì?"
+    },
+    {
+     "nhan": "Giấy xác nhận tình trạng hôn nhân có giá trị sử dụng trong bao lâu?",
+     "hoi": "Giấy xác nhận tình trạng hôn nhân có giá trị sử dụng trong bao lâu?"
+    },
+    {
+     "nhan": "Đăng ký kết hôn",
+     "hoi": "Đăng ký kết hôn"
+    }
+   ]
+  },
+  "ho-tich": {
+   "ten": "Hộ tịch khác",
+   "phu": "Khai tử · cải chính · giám hộ",
+   "icon": "📋",
+   "cau_moi": "hộ tịch",
+   "muc": [
+    {
+     "nhan": "Thay đổi / cải chính hộ tịch",
+     "hoi": "Thay đổi / cải chính hộ tịch"
+    },
+    {
+     "nhan": "Đăng ký khai tử",
+     "hoi": "khai tử"
+    },
+    {
+     "nhan": "Đăng ký giám hộ",
+     "hoi": "giám hộ"
+    },
+    {
+     "nhan": "Nhận cha, mẹ, con",
+     "hoi": "Thủ tục đăng ký nhận cha, mẹ, con không có tranh chấp tại UBND cấp xã cần giấy tờ gì?"
+    }
+   ]
+  },
+  "cu-tru": {
+   "ten": "Cư trú",
+   "phu": "Thường trú · tạm trú · tạm vắng",
+   "icon": "🏠",
+   "cau_moi": "Thủ tục cư trú cần giấy tờ gì?",
+   "muc": [
+    {
+     "nhan": "Thủ tục đăng ký tạm trú cần giấy tờ gì và nộp ở đâu?",
+     "hoi": "Thủ tục đăng ký tạm trú cần giấy tờ gì và nộp ở đâu?"
+    },
+    {
+     "nhan": "Thủ tục gia hạn tạm trú cần giấy tờ gì?",
+     "hoi": "Thủ tục gia hạn tạm trú cần giấy tờ gì?"
+    },
+    {
+     "nhan": "Thủ tục xóa đăng ký tạm trú cần giấy tờ gì?",
+     "hoi": "Thủ tục xóa đăng ký tạm trú cần giấy tờ gì?"
+    },
+    {
+     "nhan": "Thủ tục khai báo tạm vắng cần giấy tờ gì và ai phải khai báo?",
+     "hoi": "Thủ tục khai báo tạm vắng cần giấy tờ gì và ai phải khai báo?"
+    },
+    {
+     "nhan": "Đăng ký thường trú",
+     "hoi": "đăng ký thường trú"
+    }
+   ]
+  },
+  "chung-thuc": {
+   "ten": "Chứng thực",
+   "phu": "Sao y · chữ ký · hợp đồng",
+   "icon": "✍️",
+   "cau_moi": "Thủ tục chứng thực cần giấy tờ gì?",
+   "muc": [
+    {
+     "nhan": "Thủ tục chứng thực bản sao từ bản chính tại UBND xã được thực hiện như thế nào?",
+     "hoi": "Thủ tục chứng thực bản sao từ bản chính tại UBND xã được thực hiện như thế nào?"
+    },
+    {
+     "nhan": "Thủ tục chứng thực chữ ký cần giấy tờ gì?",
+     "hoi": "Thủ tục chứng thực chữ ký cần giấy tờ gì?"
+    },
+    {
+     "nhan": "Thủ tục chứng thực hợp đồng, giao dịch cần giấy tờ gì?",
+     "hoi": "Thủ tục chứng thực hợp đồng, giao dịch cần giấy tờ gì?"
+    },
+    {
+     "nhan": "Thủ tục chứng thực chữ ký người dịch tại UBND cấp xã được thực hiện như thế nào?",
+     "hoi": "Thủ tục chứng thực chữ ký người dịch tại UBND cấp xã được thực hiện như thế nào?"
+    },
+    {
+     "nhan": "Thủ tục cấp bản sao từ sổ gốc tại cơ quan chứng thực cần giấy tờ gì?",
+     "hoi": "Thủ tục cấp bản sao từ sổ gốc tại cơ quan chứng thực cần giấy tờ gì?"
+    }
+   ]
+  },
+  "dat-dai": {
+   "ten": "Đất đai",
+   "phu": "Sổ đỏ · sang tên · tách thửa",
+   "icon": "🏡",
+   "cau_moi": "Thủ tục đất đai cần giấy tờ gì?",
+   "muc": [
+    {
+     "nhan": "Thủ tục đăng ký biến động đất đai khi chuyển nhượng (sang tên sổ đỏ) gồm những bước nào?",
+     "hoi": "Thủ tục đăng ký biến động đất đai khi chuyển nhượng (sang tên sổ đỏ) gồm những bước nào?"
+    },
+    {
+     "nhan": "Thủ tục tách thửa đất cần giấy tờ gì?",
+     "hoi": "Thủ tục tách thửa đất cần giấy tờ gì?"
+    },
+    {
+     "nhan": "Thủ tục cấp đổi Giấy chứng nhận quyền sử dụng đất cần giấy tờ gì?",
+     "hoi": "Thủ tục cấp đổi Giấy chứng nhận quyền sử dụng đất cần giấy tờ gì?"
+    },
+    {
+     "nhan": "Thủ tục đăng ký biến động đất đai do thừa kế cần giấy tờ gì?",
+     "hoi": "Thủ tục đăng ký biến động đất đai do thừa kế cần giấy tờ gì?"
+    }
+   ]
+  },
+  "kinh-doanh": {
+   "ten": "Kinh doanh",
+   "phu": "Hộ kinh doanh · đổi · tạm ngừng",
+   "icon": "🏪",
+   "cau_moi": "đăng ký kinh doanh hộ cá thể",
+   "muc": [
+    {
+     "nhan": "Hồ sơ đăng ký thành lập hộ kinh doanh cá thể gồm những giấy tờ gì và nộp ở đâu?",
+     "hoi": "Hồ sơ đăng ký thành lập hộ kinh doanh cá thể gồm những giấy tờ gì và nộp ở đâu?"
+    },
+    {
+     "nhan": "Thủ tục thay đổi nội dung đăng ký hộ kinh doanh (đổi ngành nghề, địa chỉ) cần giấy tờ gì?",
+     "hoi": "Thủ tục thay đổi nội dung đăng ký hộ kinh doanh (đổi ngành nghề, địa chỉ) cần giấy tờ gì?"
+    },
+    {
+     "nhan": "Thủ tục tạm ngừng kinh doanh của hộ kinh doanh cá thể cần giấy tờ gì và nộp khi nào?",
+     "hoi": "Thủ tục tạm ngừng kinh doanh của hộ kinh doanh cá thể cần giấy tờ gì và nộp khi nào?"
+    },
+    {
+     "nhan": "Thủ tục chấm dứt hoạt động hộ kinh doanh cần giấy tờ gì?",
+     "hoi": "Thủ tục chấm dứt hoạt động hộ kinh doanh cần giấy tờ gì?"
+    }
+   ]
+  },
+  "chinh-sach": {
+   "ten": "Chính sách",
+   "phu": "Hộ nghèo · trợ cấp · người có công",
+   "icon": "🤝",
+   "cau_moi": "trợ cấp xã hội",
+   "muc": [
+    {
+     "nhan": "Hộ nghèo, hộ cận nghèo",
+     "hoi": "hộ nghèo"
+    },
+    {
+     "nhan": "Trợ cấp xã hội hàng tháng",
+     "hoi": "trợ cấp xã hội"
+    },
+    {
+     "nhan": "Chế độ người có công",
+     "hoi": "người có công"
+    },
+    {
+     "nhan": "Trợ cấp mai táng phí",
+     "hoi": "mai táng phí"
+    },
+    {
+     "nhan": "Trợ cấp trẻ em mồ côi",
+     "hoi": "trợ cấp cho trẻ em mồ côi"
+    }
+   ]
+  },
+  "khieu-nai": {
+   "ten": "Khiếu nại",
+   "phu": "Khiếu nại · tố cáo",
+   "icon": "⚖️",
+   "cau_moi": "khiếu nại tố cáo",
+   "muc": [
+    {
+     "nhan": "Khiếu nại, tố cáo tại xã",
+     "hoi": "khiếu nại tố cáo"
+    }
+   ]
+  }
+ }
+}

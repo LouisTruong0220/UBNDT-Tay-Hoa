@@ -1,0 +1,71 @@
+# DANH SÁCH CÂU HỎI NẠP TRƯỚC TỪ TRỢ LÝ NGOÀI
+#
+# Mỗi dòng một câu hỏi. Dòng bắt đầu bằng # là chú thích, script bỏ qua.
+# Chạy:  python tools/nap-truoc.py
+#
+# ═══════════════════════════════════════════════════════════════════════════
+# VÌ SAO DANH SÁCH NÀY TỒN TẠI
+#
+# Trợ lý ngoài trả lời rất tốt nhưng mất ~46 giây một câu — không thể hỏi lúc người
+# dân đang đứng trước robot. Nên hỏi trước, ở nhà, rồi cất vào kho trong máy.
+#
+# ƯU TIÊN mảng mà kho 165 thủ tục trong robot KHÔNG CÓ, và đó đúng là mảng người dân
+# hỏi nhiều nhất: HỘ TỊCH · CHỨNG THỰC · CƯ TRÚ · CĂN CƯỚC.
+# (Kho trong robot chỉ có 5 thủ tục Sở Tư pháp, và cả 5 đều là Nuôi con nuôi.)
+#
+# ⚠ Viết câu hỏi theo ĐÚNG LỜI NGƯỜI DÂN NÓI Ở QUẦY, không theo tên thủ tục trong văn
+#   bản. Kho này tra theo câu hỏi đã chuẩn hoá, nên câu càng giống lời thật càng khớp.
+#
+# ⚠ Trợ lý ngoài hay HỎI LẠI khi câu quá chung ("đăng ký kết hôn cần gì?" → nó hỏi
+#   trường hợp nào). Nên viết câu ĐỦ RÕ để nó trả lời thẳng — xem các câu bên dưới,
+#   phần lớn đều nêu rõ trường hợp.
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ── HỘ TỊCH — kho trong robot hoàn toàn không có ──
+Thủ tục đăng ký khai sinh đúng hạn cần giấy tờ gì và nộp ở đâu?
+Thủ tục đăng ký khai sinh quá hạn cần giấy tờ gì?
+Thủ tục đăng ký khai sinh khi cha mẹ chưa đăng ký kết hôn cần giấy tờ gì?
+Thủ tục đăng ký kết hôn lần đầu trong nước cần giấy tờ gì và nộp ở đâu?
+Thủ tục đăng ký lại kết hôn cần giấy tờ gì?
+Thủ tục đăng ký khai tử cần giấy tờ gì và nộp ở đâu?
+Thủ tục đăng ký nhận cha mẹ con cần giấy tờ gì?
+Thủ tục cấp trích lục hộ tịch bản sao cần giấy tờ gì?
+Thủ tục thay đổi cải chính hộ tịch cần giấy tờ gì?
+Thủ tục đăng ký giám hộ cần giấy tờ gì?
+
+# ── CHỨNG THỰC — kho trong robot không có ──
+Thủ tục chứng thực bản sao từ bản chính tại UBND xã cần giấy tờ gì và lệ phí bao nhiêu?
+Thủ tục chứng thực chữ ký cần giấy tờ gì và lệ phí bao nhiêu?
+Thủ tục chứng thực hợp đồng giao dịch tại UBND xã cần giấy tờ gì?
+Thủ tục chứng thực di chúc cần giấy tờ gì?
+Thủ tục cấp bản sao từ sổ gốc cần giấy tờ gì?
+
+# ── CƯ TRÚ · CĂN CƯỚC — kho trong robot không có ──
+Thủ tục đăng ký tạm trú cần giấy tờ gì và nộp ở đâu?
+Thủ tục khai báo tạm vắng cần giấy tờ gì và ai phải khai báo?
+Thủ tục đăng ký thường trú cần giấy tờ gì?
+Thủ tục gia hạn tạm trú cần giấy tờ gì?
+Thủ tục xác nhận thông tin về cư trú cần giấy tờ gì?
+
+# ── ĐẤT ĐAI — kho trong robot có, nhưng nội dung của Quảng Ninh ──
+Thủ tục cấp Giấy chứng nhận quyền sử dụng đất lần đầu cần giấy tờ gì và nộp ở đâu?
+Thủ tục đính chính Giấy chứng nhận quyền sử dụng đất cần giấy tờ gì?
+Thủ tục chuyển mục đích sử dụng đất cần giấy tờ gì?
+Thủ tục hoà giải tranh chấp đất đai tại UBND cấp xã được thực hiện thế nào?
+
+# ── TRỢ CẤP · BẢO TRỢ XÃ HỘI ──
+Thủ tục công nhận hộ nghèo hộ cận nghèo cần giấy tờ gì?
+Thủ tục hưởng trợ cấp xã hội hàng tháng cho người cao tuổi cần giấy tờ gì?
+Thủ tục hưởng trợ cấp xã hội hàng tháng cho người khuyết tật cần giấy tờ gì?
+Thủ tục hỗ trợ chi phí mai táng cần giấy tờ gì?
+
+# ── TRẺ EM · GIA ĐÌNH ──
+Thủ tục đăng ký nhận nuôi con nuôi trong nước cần giấy tờ gì?
+Thủ tục cấp giấy xác nhận tình trạng hôn nhân cần giấy tờ gì?
+
+# ── KINH DOANH HỘ CÁ THỂ ──
+Thủ tục đăng ký hộ kinh doanh cá thể cần giấy tờ gì và nộp ở đâu?
+
+# ── CÂU HỎI CHUNG VỀ TRUNG TÂM ──
+Bộ phận một cửa cấp xã làm việc theo quy trình nào?
+Nộp hồ sơ trực tuyến trên Cổng dịch vụ công quốc gia thế nào?

@@ -9,6 +9,7 @@ Do Công ty Cổ phần Tập đoàn Roboworld phát triển.
 | Tệp cài | [`tro-ly-hanh-chinh-tay-hoa-v1.5.apk`](tro-ly-hanh-chinh-tay-hoa-v1.5.apk) |
 | Tên gói | `vn.roboworld.hcc` |
 | Máy | GreetingBot Nova (OrionStar), Android 9 |
+| Mã nguồn | [`ma-nguon/`](ma-nguon/) — bản 1.6.1, hướng dẫn build trong [`ma-nguon/README.md`](ma-nguon/README.md) |
 
 ---
 

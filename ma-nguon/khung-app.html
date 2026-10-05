@@ -1,0 +1,2403 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<!-- ⚠⚠ PHẢI LÀ width=1920, KHÔNG PHẢI device-width.
+     Robot Nova cho trang khung 548×308 CSS px (1920×1080 điểm ảnh ở 560dpi).
+     MainActivity bật useWideViewPort + loadWithOverviewMode để WebView bố cục ở
+     1920 rồi thu nhỏ cả trang — nhờ vậy 1rem vẫn là 16px và ảnh chụp trên máy
+     tính giống hệt máy thật. Đổi dòng này thành device-width là mọi thứ phóng
+     3,5 lần: đã dính đúng thế ngày 18/09/2026, chữ chạy hết ra ngoài màn. -->
+<meta name="viewport" content="width=1920,user-scalable=no">
+<title>Trợ Lý Hành Chính</title>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   BẢNG MÀU — ĐÚNG NĂM MÀU, LẤY TỪ CHÍNH thutuc.hanhchinhso.ai.vn
+
+   Ba màu đầu là accentPalette họ khai trong /api/config, không phải mình chọn:
+       primary  #C8102E   secondary #FFCD00   surface #FEF2F2
+   Thêm trắng cho mặt thẻ và một màu chữ gần đen. Hết. Không có màu thứ sáu.
+
+   ⚠ Sắc độ nhạt KHÔNG được thêm màu mới — dùng chính ba màu trên với độ mờ
+     (color-mix / rgba). Cứ mỗi lần "thêm một màu xám cho nhẹ mắt" là giao diện
+     lại trôi thêm một bước khỏi bộ nhận diện, mà trôi thì không ai nhận ra ngay.
+
+   Đỏ #C8102E và vàng #FFCD00 là màu quốc kỳ — đây là màu của cơ quan nhà nước,
+   không phải màu thương hiệu Roboworld. Robot đứng ở sảnh công vụ thì mặc đúng
+   bộ đồ của nơi đó.
+   ══════════════════════════════════════════════════════════════════════════ */
+:root{
+  --do:#C8102E;
+  --vang:#FFCD00;
+  --nen:#FEF2F2;
+  --the:#FFFFFF;
+  --chu:#1A1A1A;
+
+  /* Dẫn xuất — KHÔNG phải màu mới, chỉ là năm màu trên pha loãng */
+  /* ⚠ 0,78 chứ không phải 0,62. Đo bằng mắt trên ảnh chụp đúng 1920×1080: dòng
+     phụ ở mức 0,62 gần như biến mất, mà người đứng trước robot phần lớn là
+     người lớn tuổi. Nhạt cho đẹp là làm đẹp cho người thiết kế, không phải cho
+     người dùng. */
+  --chu-nhat:rgba(26,26,26,.78);
+  --chu-mo:rgba(26,26,26,.42);
+  --vien:rgba(200,16,46,.16);
+  --vien-dam:rgba(200,16,46,.34);
+  --do-mo:rgba(200,16,46,.07);
+  --bong:0 .25rem 1rem rgba(200,16,46,.10);
+  --bong-cao:0 1rem 2.5rem rgba(200,16,46,.22);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;overflow:hidden}
+body{
+  font-family:"Segoe UI","Be Vietnam Pro",system-ui,-apple-system,Arial,sans-serif;
+  background:var(--nen);color:var(--chu);
+  width:100vw;height:100vh;overflow:hidden;font-size:1rem;line-height:1.45;
+}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+[hidden]{display:none !important}
+::-webkit-scrollbar{width:.7rem}
+::-webkit-scrollbar-thumb{background:var(--vien-dam);border-radius:1rem}
+::-webkit-scrollbar-track{background:transparent}
+
+.man-hinh{position:absolute;inset:0;display:none;flex-direction:column}
+.man-hinh.hien{display:flex}
+
+/* ═══════════ Thanh đầu — chừa 2,9rem cho dải trạng thái của hãng ═══════════ */
+.dau{
+  flex:none;display:flex;align-items:center;gap:1rem;
+  padding:2.9rem 1.75rem .85rem;background:var(--do);color:var(--the);
+  box-shadow:var(--bong);z-index:5;
+}
+.dau .huy{font-size:2.6rem;line-height:1;flex:none;color:var(--vang)}
+.dau .ten{flex:1;min-width:0}
+.dau .ten b{display:block;font-size:1.85rem;font-weight:700}
+.dau .ten span{display:block;font-size:1.1rem;opacity:.85;margin-top:.1rem}
+.nut-dau{
+  display:flex;align-items:center;gap:.45rem;padding:.75rem 1.5rem;border-radius:2rem;
+  background:rgba(255,255,255,.18);font-size:1.25rem;font-weight:600;flex:none;
+}
+.nut-dau.vang{background:var(--vang);color:var(--chu)}
+
+/* ═══════════ Màn chờ ═══════════ */
+#mh-cho{background:#000;align-items:center;justify-content:center;cursor:pointer}
+#mh-cho video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* ⚠ BA DẢI TÁCH BẠCH (sửa 29/09/2026 — anh Trường chụp: chữ đè lên mắt, mũi robot).
+   Mặt robot chỉ chiếm DẢI GIỮA, co vừa khung (contain) trên nền đen — clip mặt vốn nền đen
+   nên không thấy mép. Tên trung tâm ở dải TRÊN, nút + gợi ý ở MỘT HÀNG NGANG dải DƯỚI.
+   Bản trước để video phủ cả màn (cover) rồi rải chữ lên trên. */
+#mh-cho video{inset:auto;top:9.4rem;bottom:8.2rem;left:0;right:0;width:100%;
+  height:calc(100% - 17.6rem);position:absolute;object-fit:contain}
+#mh-cho .lop{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:space-between;padding:3.3rem 2rem 1.9rem}
+#mh-cho .tren{text-align:center;color:var(--the)}
+#mh-cho .tren b{display:block;font-size:2.4rem;font-weight:700}
+#mh-cho .tren span{display:block;font-size:1.3rem;opacity:.8;margin-top:.25rem}
+#mh-cho .moi{
+  display:flex;align-items:center;gap:.9rem;padding:1.3rem 3.4rem;border-radius:5rem;
+  background:var(--vang);color:var(--chu);font-size:2rem;font-weight:700;
+  box-shadow:var(--bong-cao);animation:tho-vang 2.4s ease-in-out infinite;
+}
+@keyframes tho-vang{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+/* Chân màn chờ: nút chạm + gợi ý nói — MỘT cụm xếp dọc, cách nhau rõ ràng.
+   Bản trước để gợi ý position:absolute sát đáy nên nút vàng (đang "thở" phóng to 4,5%)
+   đè lên chữ — anh Trường chụp 24/09/2026. */
+#mh-cho .duoi-cho{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1.4rem;flex-wrap:nowrap}
+#mh-cho .duoi-cho .moi{padding:1rem 2.8rem;font-size:1.85rem}
+#mh-cho .goi-y-chao{display:flex;align-items:center;gap:.7rem;padding:.6rem 1.7rem .6rem 1.1rem;
+  border-radius:3rem;background:rgba(0,0,0,.55);border:.1rem solid rgba(255,255,255,.28);
+  color:var(--the);font-size:1.5rem}
+#mh-cho .goi-y-chao b{color:var(--vang);font-weight:700}
+#mh-cho .mic-nho{display:grid;place-items:center;width:2.4rem;height:2.4rem;border-radius:50%;
+  background:var(--vang);color:var(--chu)}
+
+/* ═══════════ Ô hỏi ═══════════ */
+.khu-hoi{padding:1.35rem 2.2rem .5rem;flex:none}
+.o-hoi{
+  display:flex;align-items:center;gap:.9rem;background:var(--the);
+  border:.18rem solid var(--vien);border-radius:5rem;padding:.6rem .7rem .6rem 1.6rem;
+  box-shadow:var(--bong);
+}
+.o-hoi:focus-within{border-color:var(--do)}
+.o-hoi .kinh{flex:none;color:var(--do);opacity:.55;display:grid;place-items:center}
+.o-hoi input{flex:1;border:0;outline:0;background:none;font:inherit;font-size:1.8rem;
+  color:var(--chu);min-width:0}
+.o-hoi input::placeholder{color:var(--chu-mo)}
+.nut-mic{
+  width:4.8rem;height:4.8rem;border-radius:50%;flex:none;background:var(--do);
+  color:var(--the);font-size:2.1rem;display:grid;place-items:center;
+  box-shadow:0 .25rem .8rem rgba(200,16,46,.4);transition:transform .12s;user-select:none;
+}
+.nut-mic:active,.nut-mic.nghe{transform:scale(.93)}
+.nut-mic.nghe{animation:song 1s ease-in-out infinite}
+@keyframes song{0%,100%{box-shadow:0 0 0 0 rgba(200,16,46,.5)}50%{box-shadow:0 0 0 1rem rgba(200,16,46,0)}}
+
+/* ═══════════ Lưới thẻ ═══════════ */
+.cuon{flex:1;min-height:0;overflow-y:auto;padding:.9rem 2.2rem 1.6rem}
+.tieu-muc{
+  display:flex;align-items:center;gap:.6rem;font-size:1.2rem;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--do);
+  margin:.4rem 0 .85rem;
+}
+.tieu-muc::after{content:"";flex:1;height:.1rem;background:var(--vien)}
+
+.luoi{display:grid;grid-template-columns:repeat(3,1fr);grid-gap:1rem}
+.the{
+  background:var(--the);border:.14rem solid var(--vien);border-radius:1.2rem;
+  padding:1.5rem 1.6rem;display:flex;align-items:center;gap:1.3rem;text-align:left;
+  box-shadow:var(--bong);transition:border-color .14s,transform .14s;min-height:8.6rem;
+}
+.the:active{transform:scale(.985);border-color:var(--do)}
+.the .icon{flex:none;color:var(--do);display:grid;place-items:center}
+.the .chu{flex:1;min-width:0}
+.the .chu b{display:block;font-size:1.75rem;font-weight:700;line-height:1.25}
+.the .chu span{display:block;font-size:1.15rem;color:var(--chu-nhat);margin-top:.3rem}
+.the .so{
+  flex:none;font-size:1.05rem;font-weight:700;color:var(--do);
+  background:var(--do-mo);border-radius:2rem;padding:.35rem .9rem;
+}
+
+/* Thẻ nhanh — dải ngang, nhấn bằng vàng để tách khỏi lưới lĩnh vực */
+.luoi-nhanh{display:grid;grid-template-columns:repeat(3,1fr);grid-gap:.85rem}
+.the-nhanh{
+  background:var(--the);border:.14rem solid var(--vien);border-left:.42rem solid var(--vang);
+  border-radius:1rem;padding:1.25rem 1.4rem;display:flex;align-items:center;gap:1.1rem;
+  text-align:left;box-shadow:var(--bong);
+}
+.the-nhanh:active{transform:scale(.985)}
+.the-nhanh .icon{flex:none;color:var(--do);display:grid;place-items:center}
+.the-nhanh b{display:block;font-size:1.4rem;font-weight:700}
+.the-nhanh span{display:block;font-size:1.05rem;color:var(--chu-nhat);margin-top:.15rem}
+
+/* Mục con */
+.muc{
+  width:100%;background:var(--the);border:.14rem solid var(--vien);border-radius:1rem;
+  padding:1.45rem 1.7rem;display:flex;align-items:center;gap:1.3rem;text-align:left;
+  margin-bottom:.9rem;box-shadow:var(--bong);
+}
+.muc:active{border-color:var(--do)}
+.muc .stt{
+  flex:none;width:3.2rem;height:3.2rem;border-radius:50%;background:var(--do);
+  color:var(--the);font-weight:700;font-size:1.5rem;display:grid;place-items:center;
+}
+.muc .chu{flex:1;min-width:0;font-size:1.55rem;font-weight:600;line-height:1.35}
+.muc .co{
+  flex:none;font-size:1rem;font-weight:700;padding:.3rem .8rem;border-radius:2rem;
+  background:var(--vang);color:var(--chu);
+}
+.muc .mui{flex:none;font-size:2rem;color:var(--do);opacity:.5}
+
+/* ═══════════ Màn câu trả lời ═══════════ */
+#mh-dap .cuon{padding-top:1.2rem}
+.hop-dap{
+  background:var(--the);border:.14rem solid var(--vien);border-radius:1.2rem;
+  padding:1.6rem 1.9rem;box-shadow:var(--bong);
+}
+.hop-dap h2{font-size:1.9rem;color:var(--do);margin:.1rem 0 .9rem;line-height:1.3}
+.hop-dap h3{font-size:1.55rem;margin:1.25rem 0 .5rem;color:var(--chu)}
+.hop-dap p{font-size:1.4rem;margin:.55rem 0;line-height:1.6}
+.hop-dap li{font-size:1.4rem;margin:.45rem 0 .45rem 1.3rem;line-height:1.55}
+.hop-dap b{font-weight:700}
+.hop-dap hr{border:0;height:.1rem;background:var(--vien);margin:1.2rem 0}
+/* Khoi "Luu y dac biet" cua nguon — vien vang, khong them mau thu sau. */
+.hop-dap blockquote{font-size:1.4rem;line-height:1.6;margin:.9rem 0;
+  padding:.85rem 1.1rem;border-left:.35rem solid var(--vang);
+  background:var(--nen);border-radius:0 .7rem .7rem 0}
+.hop-dap .can-cu{
+  margin-top:1.4rem;padding:1rem 1.2rem;border-left:.35rem solid var(--vang);
+  background:var(--nen);border-radius:.6rem;font-size:1.2rem;color:var(--chu-nhat);
+}
+.hop-dap .can-cu b{display:block;color:var(--chu);margin-bottom:.35rem}
+.dang-cho{display:flex;align-items:center;gap:1rem;font-size:1.3rem;color:var(--chu-nhat);
+  padding:2rem 0;justify-content:center}
+.quay{width:1.6rem;height:1.6rem;border:.22rem solid var(--vien);border-top-color:var(--do);
+  border-radius:50%;animation:xoay .8s linear infinite}
+@keyframes xoay{to{transform:rotate(360deg)}}
+
+/* ═══════════ Màn trò chuyện AI ═══════════ */
+#mh-chat{background:var(--the)}
+#mh-chat .dinh{flex:none;display:flex;justify-content:center;padding:2.9rem 1.5rem .3rem;position:relative}
+#mh-chat .mat{height:7.6rem;aspect-ratio:16/10;border-radius:1.1rem;overflow:hidden;
+  background:var(--chu);box-shadow:var(--bong);flex:none}
+#mh-chat .mat{position:relative;z-index:0}   /* tầng riêng cho hai video — xem #mh-mua .lop-mat */
+#mh-chat .mat video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;
+  transition:opacity .25s}
+#mh-chat .mat video.an{opacity:0}
+/* ⚠ Nút ▶ xám to đè lên mặt robot mỗi lần đổi clip (anh Trường chụp 24/09/2026) KHÔNG nằm
+   trong tệp video — đã trích khung đầu/cuối cả 10 clip, sạch. Đó là ẢNH BÌA MẶC ĐỊNH của
+   WebView Android, vẽ lên thẻ video trong lúc vừa đổi nguồn mà chưa có khung nào.
+   Chữa hai lớp: mọi thẻ video có poster = GIF trong suốt 1×1, và đổi clip bằng hai lớp —
+   lớp mới chỉ hiện khi đã PHÁT (sự kiện playing), không phải khi canplay. */
+video{background:transparent}
+#mh-chat .thoat{position:absolute;right:1.5rem;top:2.9rem}
+.o-thoai{
+  flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
+  padding:.5rem 3rem;overflow:hidden;
+}
+#ai-cau{
+  width:100%;max-height:100%;overflow:hidden;text-align:center;
+  font-size:3.1rem;font-weight:700;line-height:1.26;
+}
+#ai-cau.nguoi{font-weight:500;font-style:italic;color:var(--chu-nhat)}
+#ai-cau ul{list-style:none;text-align:left;display:inline-block}
+#ai-cau li{margin:.3rem 0}
+#ai-cau li::before{content:"•";color:var(--do);font-weight:700;margin-right:.6rem}
+.duoi-chat{flex:none;padding:0 3rem .9rem;text-align:center}
+.vi-du-chat{font-size:1.15rem;color:var(--chu-nhat);margin-bottom:.45rem}
+.vi-du-chat b{color:var(--do);font-weight:700}
+.thanh-mic{
+  width:100%;padding:.85rem;border-radius:5rem;background:var(--do);color:var(--the);
+  font-size:1.9rem;font-weight:700;display:flex;align-items:center;justify-content:center;
+  gap:.9rem;box-shadow:0 .3rem 1rem rgba(200,16,46,.36);
+}
+.thanh-mic.cho{background:var(--vang);color:var(--chu)}
+.thanh-mic.nghe{background:var(--chu);animation:song 1.1s ease-in-out infinite}
+.thanh-mic.nghi{opacity:.55}
+.dai{margin-top:.45rem;font-size:1.1rem;font-weight:600;color:var(--chu-nhat);min-height:1.3rem}
+.dai.cho{color:var(--do)}
+.dai.nghe{color:var(--do)}
+.dai.khong{color:var(--do);font-weight:700}
+
+/* Lựa chọn robot đưa ra giữa màn AI */
+.lua-chon{
+  position:absolute;left:3rem;right:3rem;bottom:7.2rem;display:none;
+  flex-direction:column;gap:.55rem;z-index:8;
+}
+.lua-chon.hien{display:flex}
+.lua-chon button{
+  background:var(--the);border:.16rem solid var(--do);border-radius:1rem;
+  padding:1.05rem 1.5rem;font-size:1.4rem;font-weight:600;text-align:left;
+  box-shadow:var(--bong-cao);
+}
+
+/* ═══════════ Dải cảnh báo nguồn ═══════════ */
+.dai-nguon{
+  flex:none;display:flex;align-items:center;gap:.7rem;padding:.6rem 2.2rem;
+  background:var(--vang);color:var(--chu);font-size:1.05rem;font-weight:600;
+}
+.dai-nguon .cham{flex:none}
+.dai-nguon span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ═══════════ Phủ toàn màn (quản lý kho) ═══════════ */
+.phu{position:absolute;inset:0;background:var(--nen);display:none;flex-direction:column;z-index:20}
+.phu.hien{display:flex}
+.phu .cuon{padding:1.2rem 2.2rem}
+.bang{width:100%;border-collapse:collapse;background:var(--the);border-radius:1rem;overflow:hidden}
+.bang th,.bang td{padding:.75rem 1rem;text-align:left;font-size:1rem;
+  border-bottom:.08rem solid var(--vien)}
+.bang th{background:var(--do);color:var(--the);font-weight:700}
+.bang tr:last-child td{border-bottom:0}
+.the-nho{background:var(--the);border:.14rem solid var(--vien);border-radius:1rem;
+  padding:1rem 1.2rem;margin-bottom:.7rem;box-shadow:var(--bong)}
+.the-nho b{font-size:1.1rem}
+.the-nho p{font-size:.95rem;color:var(--chu-nhat);margin-top:.25rem}
+.nut-lon{
+  padding:.8rem 1.6rem;border-radius:2rem;background:var(--do);color:var(--the);
+  font-size:1.1rem;font-weight:700;
+}
+.nut-lon.phu-nhat{background:var(--the);color:var(--do);border:.16rem solid var(--do)}
+
+/* ═══════════ Màn chính — bốn ô chức năng (24/09/2026) ═══════════ */
+.luoi-chuc-nang{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;
+  grid-template-rows:1fr 1fr;grid-gap:1.4rem;padding:1.6rem 2.2rem 2rem}
+.o-chuc-nang{
+  background:var(--the);border:.18rem solid var(--vien);border-radius:1.6rem;
+  display:flex;align-items:center;gap:2.2rem;padding:1.6rem 2.6rem;text-align:left;
+  box-shadow:var(--bong);transition:transform .14s,border-color .14s;min-height:0;
+}
+.o-chuc-nang:active{transform:scale(.985);border-color:var(--do)}
+.o-chuc-nang .vong{flex:none;width:9rem;height:9rem;border-radius:50%;background:var(--do);
+  color:var(--the);display:grid;place-items:center}
+.o-chuc-nang.vang .vong{background:var(--vang);color:var(--chu)}
+.o-chuc-nang .chu{flex:1;min-width:0}
+.o-chuc-nang .chu b{display:block;font-size:2.7rem;font-weight:700;line-height:1.2}
+.o-chuc-nang .chu span{display:block;font-size:1.4rem;color:var(--chu-nhat);margin-top:.45rem;line-height:1.4}
+.luoi-chuc-nang.hai{grid-template-rows:1fr}
+/* Năm ô: hàng trên ba ô, hàng dưới hai ô rộng hơn — lưới 6 cột. */
+.luoi-chuc-nang.nam{grid-template-columns:repeat(6,1fr)}
+.luoi-chuc-nang.nam .o-chuc-nang{grid-column:span 2;gap:1.6rem;padding:1.4rem 1.8rem}
+.luoi-chuc-nang.nam .o-chuc-nang:nth-child(n+4){grid-column:span 3}
+.luoi-chuc-nang.nam .vong{width:7.6rem;height:7.6rem}
+.luoi-chuc-nang.nam .chu b{font-size:2.35rem}
+.luoi-chuc-nang.nam .chu span{font-size:1.25rem}
+/* Sáu ô (29/09/2026): hai hàng ba ô đều nhau. */
+.luoi-chuc-nang.nam.sau .o-chuc-nang,
+.luoi-chuc-nang.nam.sau .o-chuc-nang:nth-child(n+4){grid-column:span 2}
+/* Nhãn "robot đang di chuyển" trên màn chờ. */
+#mh-cho .nhan-di{display:flex;align-items:center;gap:.7rem;padding:.55rem 1.6rem;border-radius:3rem;
+  background:var(--do);color:var(--the);font-size:1.45rem;font-weight:700;box-shadow:var(--bong-cao)}
+#mh-cho .nhan-di .cham{width:.9rem;height:.9rem;border-radius:50%;background:var(--vang);
+  animation:nhap-nhay 1.1s ease-in-out infinite}
+@keyframes nhap-nhay{0%,100%{opacity:1}50%{opacity:.25}}
+/* Màn trạm sạc: bàn phím mật khẩu bên trái, trạng thái bên phải. */
+.khung-sac{flex:1;min-height:0;display:flex;gap:2.4rem;align-items:center;justify-content:center;padding:1.4rem 2.4rem 2rem}
+.hop-sac{background:var(--the);border:.16rem solid var(--vien);border-radius:1.6rem;box-shadow:var(--bong);
+  padding:1.8rem 2.2rem;text-align:center}
+.hop-sac .nhan{font-size:1.5rem;color:var(--chu-nhat);margin-bottom:.9rem}
+.o-mat-khau{display:flex;gap:1rem;justify-content:center;margin-bottom:1.2rem}
+.o-mat-khau i{width:1.6rem;height:1.6rem;border-radius:50%;border:.18rem solid var(--vien-dam)}
+.o-mat-khau i.co{background:var(--do);border-color:var(--do)}
+.o-mat-khau.sai{animation:lac .4s}
+@keyframes lac{0%,100%{transform:translateX(0)}25%{transform:translateX(-.8rem)}75%{transform:translateX(.8rem)}}
+.ban-phim-so{display:grid;grid-template-columns:repeat(3,5.2rem);grid-gap:.8rem;justify-content:center}
+.ban-phim-so button{height:4.4rem;border-radius:1rem;background:var(--nen,#f4f1ee);border:.14rem solid var(--vien);
+  font-size:2rem;font-weight:700;color:var(--chu)}
+.ban-phim-so button:active{border-color:var(--do);transform:scale(.96)}
+.ban-phim-so button.xoa-so{font-size:1.2rem}
+.tt-sac{max-width:34rem}
+.tt-sac .vong-to{width:7rem;height:7rem;border-radius:50%;background:var(--do-mo);color:var(--do);
+  display:grid;place-items:center;margin:0 auto 1rem}
+.tt-sac b{display:block;font-size:2rem;color:var(--do);margin-bottom:.5rem}
+.tt-sac p{font-size:1.35rem;line-height:1.5;color:var(--chu-nhat)}
+.tt-sac .pin{font-size:1.25rem;margin-top:.9rem;color:var(--chu)}
+/* Màn chức năng chưa cài đặt */
+.chua-cai{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem}
+.chua-cai .hop{background:var(--the);border:.16rem dashed var(--vien-dam);border-radius:1.6rem;
+  padding:3rem 3.6rem;text-align:center;max-width:62rem;box-shadow:var(--bong)}
+.chua-cai .vong-to{width:8rem;height:8rem;border-radius:50%;background:var(--do-mo);color:var(--do);
+  display:grid;place-items:center;margin:0 auto 1.2rem}
+.chua-cai b{display:block;font-size:2.3rem;color:var(--do);margin-bottom:.7rem}
+.chua-cai p{font-size:1.5rem;line-height:1.55;color:var(--chu-nhat)}
+
+/* ═══════════ Nhảy múa ═══════════ */
+#mh-mua{background:var(--chu);overflow:hidden}   /* mặt nhún phóng to 5% — không được làm tràn trang */
+#mh-mua video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* Hai lớp video: đổi biểu cảm bằng cách mờ dần lớp trên — đổi src trên MỘT thẻ là chớp đen. */
+/* ⚠ z-index:0 BẮT BUỘC — tạo tầng riêng cố định cho hai video.
+   Bộ đổi mặt gán z-index 1/2 cho video; không có tầng riêng thì z-index đó THOÁT ra ngoài
+   và đè lên nút "Dừng nhảy". Tệ hơn: lúc mặt đang nhún (transform) thì có tầng riêng, hết
+   nhún thì mất — nút nháy theo từng phách và bấm vào trúng video (anh Trường báo 24/09). */
+#mh-mua .lop-mat{position:absolute;inset:0;z-index:0;transition:transform .09s ease-out}
+#mh-mua .lop-mat video{transition:opacity .25s}
+#mh-mua .lop-mat video.an{opacity:0}
+/* Mặt robot NHÚN đúng phách: phách mạnh nhún sâu, phách thường nhún nhẹ. */
+#mh-mua .lop-mat.nhun{transform:scale(1.05)}
+#mh-mua .lop-mat.nhun-nhe{transform:scale(1.02)}
+#mh-mua #mua-dang{flex-direction:column;align-items:center;gap:.6rem}
+#mh-mua .goi-y-dung{color:var(--the);font-size:1.25rem;opacity:.85}
+#mh-mua .lop-mua{position:absolute;left:0;right:0;bottom:0;z-index:5;padding:2rem 3rem 2.4rem;
+  display:flex;justify-content:center;background:linear-gradient(180deg,transparent,rgba(0,0,0,.78))}
+.hop-mua{background:var(--the);border-radius:1.6rem;padding:1.8rem 2.6rem;text-align:center;
+  box-shadow:var(--bong-cao);max-width:60rem}
+.hop-mua b{display:block;font-size:2.3rem;color:var(--do)}
+.hop-mua p{font-size:1.5rem;margin:.6rem 0 1.3rem;line-height:1.5}
+.hang-nut{display:flex;gap:1rem;justify-content:center}
+.nut-lon.to{font-size:1.7rem;padding:1.05rem 2.6rem}
+
+/* ═══════════ Đố vui ═══════════ */
+.khung-do{flex:1;min-height:0;display:flex;flex-direction:column;padding:1.6rem 3rem 1.8rem;gap:1.2rem}
+.cau-do{flex:none;background:var(--the);border:.16rem solid var(--vien);border-radius:1.4rem;
+  padding:1.6rem 2rem;font-size:2.2rem;font-weight:700;line-height:1.35;box-shadow:var(--bong)}
+.luoi-dap{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-gap:1rem}
+.luoi-dap button{background:var(--the);border:.18rem solid var(--vien);border-radius:1.2rem;
+  padding:1rem 1.5rem;font-size:1.6rem;font-weight:600;text-align:left;display:flex;
+  align-items:center;gap:1rem;box-shadow:var(--bong);line-height:1.3}
+.luoi-dap button .chu-cai{flex:none;width:3rem;height:3rem;border-radius:50%;background:var(--do-mo);
+  color:var(--do);font-weight:700;display:grid;place-items:center}
+.luoi-dap button.dung{border-color:var(--do);background:var(--vang)}
+.luoi-dap button.dung .chu-cai{background:var(--do);color:var(--the)}
+.luoi-dap button.sai{opacity:.45}
+.duoi-do{flex:none;display:flex;align-items:center;gap:1.2rem;min-height:3.6rem}
+.ket-do{flex:1;font-size:1.5rem;font-weight:700;color:var(--do)}
+.nguon-do{font-size:1rem;color:var(--chu-nhat)}
+
+/* ═══════════ Thông tin ═══════════ */
+.tab-tt{flex:none;display:flex;gap:.8rem;padding:1.1rem 2.2rem .2rem}
+.tab-tt button{padding:.8rem 1.8rem;border-radius:2rem;font-size:1.35rem;font-weight:700;
+  background:var(--the);border:.16rem solid var(--vien);color:var(--chu)}
+.tab-tt button.chon{background:var(--do);border-color:var(--do);color:var(--the)}
+.luoi-can-bo{display:grid;grid-template-columns:repeat(5,1fr);grid-gap:1.1rem}
+.the-can-bo{cursor:pointer;transition:transform .14s,border-color .14s,box-shadow .14s}
+.the-can-bo:active{transform:scale(.98)}
+/* Thẻ đang được robot giới thiệu — viền đỏ đậm. */
+.the-can-bo.dang-doc{border-color:var(--do);box-shadow:0 0 0 .25rem var(--do-mo),var(--bong-cao)}
+.the-can-bo .nghe{display:flex;align-items:center;gap:.4rem;margin-top:.55rem;font-size:1rem;
+  font-weight:600;color:var(--do)}
+.the-can-bo{background:var(--the);border:.14rem solid var(--vien);border-radius:1.2rem;
+  overflow:hidden;box-shadow:var(--bong);display:flex;flex-direction:column}
+.the-can-bo .anh{aspect-ratio:3/4;background:var(--do-mo);display:grid;place-items:center;
+  color:var(--do);font-size:4rem;font-weight:700;overflow:hidden}
+.the-can-bo .anh img{width:100%;height:100%;object-fit:contain;background:#fff;display:block}
+.the-can-bo .chu{padding:.7rem 1rem .9rem}
+.the-can-bo b{display:block;font-size:1.45rem;line-height:1.3}
+.the-can-bo span{display:block;font-size:1.15rem;color:var(--do);font-weight:600;margin-top:.2rem}
+.the-can-bo p{font-size:1.05rem;color:var(--chu-nhat);margin-top:.35rem;line-height:1.4}
+.gioi-thieu{display:grid;grid-template-columns:1.35fr 1fr;grid-gap:1.4rem;align-items:start}
+.khung-media{background:var(--chu);border-radius:1.2rem;overflow:hidden;aspect-ratio:16/9;
+  display:grid;place-items:center;box-shadow:var(--bong)}
+.khung-media img,.khung-media video{width:100%;height:100%;object-fit:contain;display:block}
+.dai-anh{display:flex;gap:.7rem;margin-top:.8rem;overflow-x:auto}
+.dai-anh button{flex:none;width:8.5rem;aspect-ratio:16/9;border-radius:.7rem;overflow:hidden;
+  border:.18rem solid transparent;background:var(--do-mo);font-size:1.6rem;color:var(--do)}
+.dai-anh button.chon{border-color:var(--do)}
+.dai-anh img{width:100%;height:100%;object-fit:cover;display:block}
+.chu-gioi-thieu h2{font-size:1.9rem;color:var(--do);margin-bottom:.6rem;line-height:1.3}
+.chu-gioi-thieu p{font-size:1.35rem;line-height:1.6;margin-bottom:.7rem}
+.dang-cap-nhat{background:var(--the);border:.16rem dashed var(--vien-dam);border-radius:1.2rem;
+  padding:2.6rem 2rem;text-align:center;font-size:1.5rem;color:var(--chu-nhat)}
+.dang-cap-nhat b{display:block;font-size:1.9rem;color:var(--do);margin-bottom:.4rem}
+</style>
+</head>
+<body>
+
+<!-- ════════════════ MÀN CHỜ ════════════════ -->
+<div class="man-hinh hien" id="mh-cho" onclick="batDau()">
+  <video id="clip-cho" autoplay muted loop playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
+  <div class="lop">
+    <div class="tren">
+      <b id="cho-don-vi">—</b>
+      <span id="cho-tinh">—</span>
+    </div>
+    <div class="duoi-cho">
+      <div class="nhan-di" id="nhan-di" hidden><span class="cham"></span><span id="nhan-di-chu">Robot đang du hành</span></div>
+      <div class="moi">Chạm vào màn hình để bắt đầu</div>
+      <div class="goi-y-chao"><span class="mic-nho" data-hinh-nho="mic"></span>
+        <span>hoặc nói <b>“Xin chào”</b> với tôi</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ MÀN CHÍNH ════════════════ -->
+<div class="man-hinh" id="mh-chinh">
+  <div class="dau">
+    <div class="huy">★</div>
+    <div class="ten">
+      <b id="th-ten">Trợ Lý Hành Chính</b>
+      <span id="th-khau-hieu">Tra cứu thủ tục hành chính công</span>
+    </div>
+    <button class="nut-dau" onclick="veManChoVaLeTan()">Về màn chờ</button>
+  </div>
+  <div class="luoi-chuc-nang nam sau">
+    <button class="o-chuc-nang" onclick="ve('mh-tra-cuu')">
+      <span class="vong" data-hinh="tra-cuu"></span>
+      <span class="chu"><b>Tra cứu thủ tục</b><span>Giấy tờ, nơi nộp, căn cứ pháp lý</span></span>
+    </button>
+    <button class="o-chuc-nang vang" onclick="ve('mh-chat')">
+      <span class="vong" data-hinh="ai"></span>
+      <span class="chu"><b>Giao tiếp AI</b><span>Hỏi robot bằng giọng nói</span></span>
+    </button>
+    <!-- Ô "Du hành" GỠ theo yêu cầu anh Trường 29/09/2026, thay bằng ô này. Mã du hành
+         (DiChuyen.batDuHanh, màn mh-du-hanh) vẫn giữ — gắn lại ô là chạy. -->
+    <button class="o-chuc-nang" onclick="denDiemLeTan()">
+      <span class="vong" data-hinh="dan-duong"></span>
+      <span class="chu"><b>Đến điểm lễ tân</b><span>Robot về quầy đón tiếp khách</span></span>
+    </button>
+    <button class="o-chuc-nang vang" onclick="ve('mh-giai-tri')">
+      <span class="vong" data-hinh="giai-tri"></span>
+      <span class="chu"><b>Giải trí</b><span>Xem robot nhảy múa · chơi đố vui</span></span>
+    </button>
+    <button class="o-chuc-nang" onclick="veThongTin(); ve('mh-tt')">
+      <span class="vong" data-hinh="thong-tin"></span>
+      <span class="chu"><b>Thông tin</b><span>Cán bộ Trung tâm · hình ảnh, video giới thiệu</span></span>
+    </button>
+    <button class="o-chuc-nang vang" onclick="moManSac()">
+      <span class="vong" data-hinh="sac"></span>
+      <span class="chu"><b>Về trạm sạc</b><span>Dành cho cán bộ · cần mật khẩu</span></span>
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════ MÀN TRA CỨU — chỉ bấm, KHÔNG có đường vào AI (24/09/2026) ════════════════ -->
+<div class="man-hinh" id="mh-tra-cuu">
+  <div class="dau">
+    <button class="nut-dau" onclick="ve('mh-chinh')">Trang chủ</button>
+    <div class="ten"><b>Tra cứu thủ tục</b><span>Chạm vào việc anh chị cần làm</span></div>
+  </div>
+  <div class="cuon">
+    <div class="tieu-muc">Chọn việc anh chị cần làm</div>
+    <div class="luoi" id="luoi-linh-vuc"></div>
+
+    <div class="tieu-muc" style="margin-top:1.6rem">Hay được hỏi nhất</div>
+    <div class="luoi-nhanh" id="luoi-nhanh"></div>
+
+    <div id="khoi-chua-phu"></div>
+  </div>
+
+  <!-- Dải "BẢN XEM TRƯỚC – KHÔNG DÙNG CHO CÔNG VIỆC THỰC TẾ" của nguồn ĐÃ GỠ
+       khỏi màn hình theo quyết định của anh Trường ngày 20/09/2026.
+       Dữ liệu vẫn còn ở app-data.json["canh_bao"] (tai-nguon.py vẫn tải về), nhưng
+       KHÔNG hiện ở màn nào nữa, kể cả màn quản lý. Bật lại: trả khối này về. -->
+</div>
+
+<!-- ════════════════ MÀN MỤC CON ════════════════ -->
+<div class="man-hinh" id="mh-muc">
+  <div class="dau">
+    <button class="nut-dau" onclick="ve('mh-tra-cuu')">Quay lại</button>
+    <div class="ten"><b id="muc-ten">—</b><span id="muc-phu">—</span></div>
+    <button class="nut-dau" onclick="ve('mh-chinh')">Trang chủ</button>
+  </div>
+  <div class="cuon" id="ds-muc"></div>
+</div>
+
+<!-- ════════════════ MÀN CÂU TRẢ LỜI ════════════════ -->
+<div class="man-hinh" id="mh-dap">
+  <div class="dau">
+    <button class="nut-dau" onclick="quayLaiTuDap()">Quay lại</button>
+    <div class="ten"><b id="dap-ten">—</b><span id="dap-phu">Nguồn: thutuc.hanhchinhso.ai.vn</span></div>
+    <button class="nut-dau vang" onclick="docLai()">Đọc lại</button>
+  </div>
+  <div class="cuon"><div class="hop-dap" id="hop-dap"></div></div>
+</div>
+
+<!-- ════════════════ VỀ TRẠM SẠC — mật khẩu, anh Trường yêu cầu 29/09/2026 ════════════════
+     Mật khẩu KIỂM Ở KOTLIN (Cai.MAT_KHAU_VE_SAC) — lớp web không giữ. Pin yếu thì robot tự về,
+     không qua màn này (DiChuyen.kt). -->
+<div class="man-hinh" id="mh-sac">
+  <div class="dau">
+    <button class="nut-dau" onclick="ve('mh-chinh')">Trang chủ</button>
+    <div class="ten"><b>Về trạm sạc</b><span>Dành cho cán bộ Trung tâm</span></div>
+  </div>
+  <div class="khung-sac">
+    <div class="hop-sac" id="hop-mat-khau">
+      <div class="nhan">Nhập mật khẩu</div>
+      <div class="o-mat-khau" id="o-mat-khau"><i></i><i></i><i></i><i></i></div>
+      <div class="ban-phim-so" id="ban-phim-so"></div>
+    </div>
+    <div class="hop-sac tt-sac">
+      <div class="vong-to" data-hinh="sac"></div>
+      <b id="sac-tieu-de">Đưa robot về trạm sạc</b>
+      <p id="sac-mo-ta">Nhập đúng mật khẩu, robot sẽ tự đi về trạm sạc và cắm sạc.<br>
+         Khi pin yếu, robot tự về sạc mà không cần mật khẩu.</p>
+      <div class="pin" id="sac-pin"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ DU HÀNH — anh Trường yêu cầu 29/09/2026 ════════════════
+     Robot đi vòng Diem 1 → 2 → 3 liên tục, IM LẶNG. Bắt đầu thì về màn chờ (mặt robot +
+     nhãn đỏ); chạm màn hình bất kỳ lúc nào là dừng. Vòng đi ở Kotlin: DiChuyen.kt. -->
+<div class="man-hinh" id="mh-du-hanh">
+  <div class="dau">
+    <button class="nut-dau" onclick="ve('mh-chinh')">Trang chủ</button>
+    <div class="ten"><b>Du hành</b><span>Robot đi dạo quanh sảnh</span></div>
+  </div>
+  <div class="chua-cai">
+    <div class="hop">
+      <div class="vong-to" data-hinh="du-hanh"></div>
+      <b>Robot sẽ đi dạo quanh sảnh</b>
+      <p>Robot đi lần lượt qua các điểm đã đặt và lặp lại liên tục, không nói gì trên đường đi.<br>
+         Muốn dừng, anh chị <b style="display:inline;font-size:inherit;color:inherit">chạm vào màn hình</b> bất kỳ lúc nào.</p>
+      <p id="du-hanh-loi" style="color:var(--do);margin-top:.8rem" hidden></p>
+      <div class="hang-nut" style="justify-content:center;margin-top:1.6rem">
+        <button class="nut-lon phu-nhat to" onclick="ve('mh-chinh')">Quay lại</button>
+        <button class="nut-lon to" onclick="batDauDuHanh()">Bắt đầu du hành</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ GIẢI TRÍ ════════════════ -->
+<div class="man-hinh" id="mh-giai-tri">
+  <div class="dau">
+    <button class="nut-dau" onclick="ve('mh-chinh')">Trang chủ</button>
+    <div class="ten"><b>Giải trí</b><span>Thư giãn trong lúc chờ đến lượt</span></div>
+  </div>
+  <div class="luoi-chuc-nang hai">
+    <button class="o-chuc-nang vang" onclick="vaoManMua()">
+      <span class="vong" data-hinh="nhay"></span>
+      <span class="chu"><b>Robot nhảy múa</b><span>Robot lắc lư, gật gù theo nhạc khoảng nửa phút</span></span>
+    </button>
+    <button class="o-chuc-nang" onclick="batDauDoVui()">
+      <span class="vong" data-hinh="do-vui"></span>
+      <span class="chu"><b>Đố vui thủ tục</b><span>Năm câu hỏi về giấy tờ hành chính — anh chị đoán thử nhé</span></span>
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════ NHẢY MÚA ════════════════ -->
+<div class="man-hinh" id="mh-mua">
+  <div class="lop-mat" id="lop-mat" onclick="if(dangNhay) dungNhay(false, false)">
+    <video id="clip-mua" muted loop playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
+    <video id="clip-mua-2" class="an" muted loop playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
+  </div>
+  <audio id="nhac-mua" preload="auto"></audio>
+  <div class="lop-mua">
+    <div class="hop-mua" id="mua-chuan-bi">
+      <b>Robot nhảy múa</b>
+      <p>Robot sẽ lắc người tại chỗ theo nhạc khoảng nửa phút.<br>
+         Anh chị vui lòng <b style="display:inline;font-size:inherit">lùi lại một bước</b> giúp tôi nhé!</p>
+      <div class="hang-nut">
+        <button class="nut-lon phu-nhat to" onclick="ve('mh-giai-tri')">Quay lại</button>
+        <button class="nut-lon to" onclick="batDauNhay()">Bắt đầu nhảy</button>
+      </div>
+    </div>
+    <div class="hang-nut" id="mua-dang" hidden>
+      <button class="nut-lon to" onclick="dungNhay(false, false)">Dừng nhảy</button>
+      <div class="goi-y-dung">hoặc chạm vào bất kỳ đâu trên màn hình</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ ĐỐ VUI ════════════════ -->
+<div class="man-hinh" id="mh-do">
+  <div class="dau">
+    <button class="nut-dau" onclick="ve('mh-giai-tri')">Quay lại</button>
+    <div class="ten"><b>Đố vui thủ tục</b><span id="do-tien-do">—</span></div>
+    <button class="nut-dau vang" onclick="docCauDo()">Đọc lại</button>
+  </div>
+  <div class="khung-do">
+    <div class="cau-do" id="cau-do">—</div>
+    <div class="luoi-dap" id="luoi-dap-do"></div>
+    <div class="duoi-do">
+      <div class="ket-do" id="ket-do"></div>
+      <button class="nut-lon to" id="nut-tiep-do" onclick="cauDoTiep()" hidden>Câu tiếp theo ›</button>
+    </div>
+    <div class="nguon-do">Câu hỏi lấy từ dữ liệu thủ tục đã nạp trong robot (nguồn thutuc.hanhchinhso.ai.vn)</div>
+  </div>
+</div>
+
+<!-- ════════════════ THÔNG TIN TRUNG TÂM ════════════════ -->
+<div class="man-hinh" id="mh-tt">
+  <div class="dau">
+    <button class="nut-dau" onclick="ve('mh-chinh')">Trang chủ</button>
+    <div class="ten"><b>Thông tin Trung tâm</b><span id="tt-phu">—</span></div>
+  </div>
+  <div class="tab-tt">
+    <button id="tab-cb" class="chon" onclick="moTabTT('cb')">Cán bộ Trung tâm</button>
+    <button id="tab-gt" onclick="moTabTT('gt')">Giới thiệu Trung tâm</button>
+  </div>
+  <div class="cuon" id="tt-noi-dung"></div>
+</div>
+
+<!-- ════════════════ MÀN TRÒ CHUYỆN AI ════════════════ -->
+<div class="man-hinh" id="mh-chat">
+  <div class="dinh">
+    <div class="mat" id="ai-tieu-de"><video id="clip-ai" muted playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video><video id="clip-ai-2" class="an" muted playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video></div>
+    <button class="nut-dau thoat" onclick="ve('mh-chinh')" style="background:var(--do-mo);color:var(--chu)">Kết thúc</button>
+  </div>
+
+  <div class="o-thoai"><div id="ai-cau">—</div></div>
+
+  <div class="lua-chon" id="lua-chon"></div>
+
+  <div class="duoi-chat">
+    <div class="vi-du-chat">Ví dụ: <b id="vi-du-xoay">—</b></div>
+    <button class="thanh-mic" id="thanh-mic" onclick="bamMic()">
+      <span id="mic-bieu"></span><span id="mic-chu">Bấm để nói</span>
+    </button>
+    <div class="dai" id="dai-mic"></div>
+  </div>
+</div>
+
+<!-- ════════════════ MÀN QUẢN LÝ (bấm giữ mặt robot) ════════════════ -->
+<div class="phu" id="phu-kho">
+  <div class="dau">
+    <div class="huy">★</div>
+    <div class="ten"><b>Robot đang biết những gì</b><span id="kho-tom">—</span></div>
+    <button class="nut-dau" onclick="dongKho()">Đóng</button>
+  </div>
+  <div class="cuon" id="kho-noi-dung"></div>
+</div>
+
+<script>
+/*__DU_LIEU__*/
+/*__THONG_TIN__*/
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   TRỢ LÝ HÀNH CHÍNH — giao diện robot GreetingBot Nova
+
+   NGUỒN DUY NHẤT: thutuc.hanhchinhso.ai.vn
+   Mọi chữ về thủ tục trên màn hình này đều của họ. App không biên tập, không tóm
+   tắt lại bằng lời của mình, không thêm thủ tục nào. Việc của app chỉ có ba: bày
+   ra cho dễ chọn, đọc thành tiếng cho dễ nghe, và chặn những câu không được đọc.
+   ══════════════════════════════════════════════════════════════════════════ */
+const D = window.DU_LIEU || {};
+const $ = s => document.querySelector(s);
+const $$ = s => Array.prototype.slice.call(document.querySelectorAll(s));
+
+let manDang = 'mh-cho';
+let manTruoc = 'mh-chinh';
+let linhVucDang = null;
+let capCuuDangHien = false;
+
+const coCau = () => typeof CAU !== 'undefined' && CAU;
+
+/* ─────────── Nói và cắt tiếng ─────────── */
+function doc(cau){ if(coCau() && cau) try{ CAU.doc(cau); }catch(e){} }
+function dungDoc(){ if(coCau()) try{ CAU.dungDoc(); }catch(e){} }
+
+/**
+ * THAO TÁC LÀ NGẮT LỜI — và cắt tiếng một mình KHÔNG đủ.
+ *
+ * Tầng hội thoại chạy luồng phụ: lúc người dân bấm nút, câu trả lời có thể còn
+ * đang trên đường về, CHƯA phát nên không có gì để cắt. Vài giây sau nó mới cất
+ * lên giữa lúc họ đang đọc thứ khác. CAU.nguoiDungThaoTac() hạ cờ nhận câu bên
+ * Kotlin, đó mới là nửa còn lại.
+ *
+ * ⚠ TRỪ khi CHÍNH APP chuyển màn (tra ra chắc → tự mở trang) — cờ appTuChuyenMan
+ *   phân biệt, không thì robot mở đúng trang rồi đứng câm.
+ */
+let appTuChuyenMan = false;
+function thaoTac(){
+  if(appTuChuyenMan) return;
+  dungDoc();
+  anLuaChon();
+  if(coCau() && CAU.nguoiDungThaoTac) try{ CAU.nguoiDungThaoTac(); }catch(e){}
+}
+
+/* ─────────── Chuyển màn ─────────── */
+function ve(m){
+  thaoTac();
+  /* Rời màn nhảy thì dừng nhảy TRƯỚC khối xoay theo người bên dưới — về thẳng màn chờ
+     thì không bật lại xoay theo người (khối dưới sẽ tắt nó). */
+  if(manDang === 'mh-mua' && m !== 'mh-mua'){
+    dungNhay(false, false);
+    /* Bật lại xoay theo người KHI RỜI màn nhảy, không phải ngay lúc dừng: bản trước bật lại
+       1,5 giây sau khi dừng, robot quay về phía người đứng xem ngay trên màn nhảy — trông
+       như vẫn đang nhảy tiếp (anh Trường báo 24/09). Về màn chờ thì khối dưới lo. */
+    if(m !== 'mh-cho' && coCau() && CAU.batDoiDien) try{ CAU.batDoiDien(); }catch(e){}
+  }
+  if(m !== 'mh-do') dungVongDo();
+  /* Rời màn chờ → robot xoay đối diện người đang thao tác; về màn chờ → xoay về hướng cũ.
+     Đặt ở ve() vì MỌI đường ra vào màn chờ đều qua đây (chạm màn, vắng 5 phút, nút lùi). */
+  if(coCau()){
+    try{
+      if(manDang === 'mh-cho' && m !== 'mh-cho' && CAU.batDoiDien) CAU.batDoiDien();
+      /* Robot sắp tự đi (du hành / về lễ tân / pin yếu): nhả gầm máy, KHÔNG xoay về hướng cũ —
+         lệnh xoay đó sẽ giành gầm máy với lệnh đi ngay sau. */
+      if(manDang !== 'mh-cho' && m === 'mh-cho' && CAU.tatDoiDien) CAU.tatDoiDien(!robotSapDi);
+    }catch(e){}
+  }
+  if(manDang === 'mh-chat' && m !== 'mh-chat') ketThucPhien();
+  if(m !== 'mh-dap') manTruoc = (m === 'mh-muc') ? 'mh-tra-cuu' : manTruoc;
+  $$('.man-hinh').forEach(o => o.classList.toggle('hien', o.id === m));
+  manDang = m;
+  /* Kotlin cần biết màn đang hiện để nghe từ đánh thức "Xin chào" CHỈ ở màn chờ. */
+  if(coCau() && CAU.baoManHinh) try{ CAU.baoManHinh(m); }catch(e){}
+  capNhatNutMic();
+  if(m === 'mh-chat') vaoManChat();
+  if(coCau() && CAU.moTaManHinh) try{ CAU.moTaManHinh(moTaManHinh()); }catch(e){}
+  henVeCho();
+}
+
+/* ─────────── Lời chào — anh Trường yêu cầu 24/09/2026 ───────────
+   Chạm màn hình rời màn chờ → chào NGẮN (người ta đã chủ động chạm, đừng bắt đứng nghe lâu).
+   Nói "Xin chào" ở màn chờ → chào ĐẦY ĐỦ hơn và mở màn chính (họ chưa biết robot làm gì). */
+function loiChaoCham(){
+  return 'Xin chào anh chị! Anh chị cần tra cứu thủ tục hay hỏi gì, hãy chạm vào mục trên màn hình nhé.';
+}
+function loiChaoGiong(){
+  return 'Xin chào anh chị! Tôi là robot hướng dẫn của ' + (D.don_vi || 'Trung tâm') + '. ' +
+         'Mời anh chị chạm vào màn hình để tra cứu thủ tục, hoặc chọn Giao tiếp AI để hỏi tôi bằng giọng nói nhé.';
+}
+/* Chào TRỄ một nhịp: ve() vừa gọi thaoTac() → cắt tiếng. Lệnh cắt của hãng chạy bất đồng
+   bộ, phát ngay sau đó là có thể bị chính lệnh cắt ấy nuốt mất câu chào. */
+let henChao = null;
+function chaoSau(cau){
+  clearTimeout(henChao);
+  henChao = setTimeout(() => { if(manDang !== 'mh-cho') doc(cau); }, 400);
+}
+
+function batDau(){
+  const tuManCho = manDang === 'mh-cho';
+  ve('mh-chinh');
+  if(tuManCho) chaoSau(loiChaoCham());
+}
+
+/* Kotlin gọi khi nghe "Xin chào" lúc đang ở màn chờ (MainApplication.laLoiDanhThuc). */
+window.danhThucBangLoiChao = function(){
+  if(manDang !== 'mh-cho') return;
+  ve('mh-chinh');
+  chaoSau(loiChaoGiong());
+};
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   BIỂU TƯỢNG ĐƠN SẮC — vẽ tay, một màu, không tải từ đâu cả
+
+   Mỗi hình chọn theo thứ người dân cầm trên tay khi tới quầy, không theo phép ẩn
+   dụ: hộ tịch là quyển sổ, chứng thực là con dấu, đất đai là mảnh thửa, cư trú là
+   ngôi nhà, khai sinh là cái nôi. Nét 2.2 và khung 24 để còn rõ ở hai ba mét.
+
+   Tên khoá khớp với 'ma' của lĩnh vực trong app-data.json; thẻ nhanh dò theo chữ
+   trong nhãn. Không khớp thì rơi về hình mặc định — một trang giấy.
+   ══════════════════════════════════════════════════════════════════════════ */
+const TO_GIAY = '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>';
+const HINH = {
+  /* Tờ giấy + hình em bé: đầu tròn và cái tã. */
+  'khai-sinh':  TO_GIAY + '<circle cx="12" cy="12" r="1.7"/><path d="M9.6 19a2.4 2.4 0 0 1 4.8 0"/>',
+  /* Quyển sổ hộ tịch — gáy dày bên trái, mấy dòng chữ bên phải. */
+  'ho-tich':    '<path d="M5 4a1 1 0 0 1 1-1h12v18H6a1 1 0 0 1-1-1z"/><path d="M8 3v18"/>' +
+                '<path d="M11 8h5M11 12h5"/>',
+  /* Ngôi nhà có cửa — chỗ ở. */
+  'cu-tru':     '<path d="M4 11 12 4l8 7"/><path d="M6 10v10h12V10"/><path d="M10 20v-5h4v5"/>',
+  /* Tờ giấy ĐÃ ĐÓNG DẤU: vòng tròn con dấu đè lên góc giấy. */
+  'chung-thuc': TO_GIAY + '<circle cx="13" cy="15" r="4"/><path d="M10.7 15h4.6"/>',
+  /* Mảnh thửa nhìn chếch + cọc mốc cắm giữa. */
+  'dat-dai':    '<path d="M2.5 15 12 10l9.5 5-9.5 5z"/><path d="M12 10V3"/><path d="M12 3h5v3h-5"/>',
+  /* Hai chiếc nhẫn lồng nhau. */
+  'ket-hon':    '<circle cx="9.5" cy="14.5" r="4.5"/><circle cx="14.5" cy="14.5" r="4.5"/>' +
+                '<path d="M8 6h3l-1.5 3zM13 6h3l-1.5 3z"/>',
+  /* Nhà kèm mũi tên đi vào — tạm trú, chuyển tới ở. */
+  'tam-tru':    '<path d="M4 11 12 4l8 7"/><path d="M6 10v10h12V10"/>' +
+                '<path d="M9 16h5"/><path d="m12 13.5 2.5 2.5L12 18.5"/>',
+  /* Cửa hàng: mái hiên THẲNG để không lẫn với mái nhọn của 'cu-tru', thêm quầy hàng. */
+  'kinh-doanh': '<path d="M4 9h16"/><path d="M5 9 6.5 4h11L19 9"/>' +
+                '<path d="M5.5 9v11h13V9"/><path d="M9 20v-5h6v5"/>',
+
+  /* Bàn tay đỡ bên dưới, trái tim bên trên — mảng trợ giúp, không phải giấy tờ. */
+  'chinh-sach': '<path d="M12 11.5c-.9-1.9-3.6-1.6-3.6.6 0 1.8 3.6 4.2 3.6 4.2s3.6-2.4 3.6-4.2c0-2.2-2.7-2.5-3.6-.6z"/>' +
+                '<path d="M4 17.5c2.2 2.8 5 4.2 8 4.2s5.8-1.4 8-4.2"/>',
+
+  /* Cán cân: trụ đứng, đòn ngang, hai đĩa cân — quen mắt với việc khiếu nại. */
+  'khieu-nai':  '<path d="M12 4v16"/><path d="M7 20h10"/><path d="M4 8h16"/>' +
+                '<path d="M4 8 2 13h4z"/><path d="M20 8l-2 5h4z"/>' +
+                '<circle cx="12" cy="5.2" r="1.1"/>',
+
+  /* ── Bốn ô màn chính + giải trí (24/09/2026) — cùng bộ nét ── */
+  'tra-cuu':    '<circle cx="10.5" cy="10.5" r="6"/><path d="m20 20-5.2-5.2"/>',
+  'ai':         '<path d="M4 5h16v10H10l-4.5 4V15H4z"/><path d="M8.5 9.2h7M8.5 12h4.5"/>',
+  'giai-tri':   '<path d="M9 17.5V5.5l10-2v12"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="15.5" r="2.5"/>',
+  'thong-tin':  '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.6v.2"/>',
+  /* Tia sét trong khối pin — về trạm sạc. */
+  'sac':        '<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 10.5v3"/><path d="m11.5 9-2.5 3.2h3.4L10 15"/>',
+  /* Đường đi vòng qua ba điểm — du hành. */
+  'du-hanh':    '<circle cx="5" cy="18" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="17" cy="18" r="2"/>' +
+                '<path d="M7 18h8"/><path d="M6.2 16.3 17.6 7.6"/><path d="M18.6 8v8"/>',
+  /* Ghim bản đồ — dẫn đường. */
+  'dan-duong':  '<path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
+  'nhay':       '<circle cx="12" cy="4.5" r="2"/><path d="M12 7v6l-3 7"/><path d="m12 13 3.5 6.5"/><path d="M5.5 9.5 12 8l6 -3"/>',
+  'do-vui':     '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.4c-.6.3-1 .8-1 1.5v.6"/><path d="M12 16.8v.2"/>',
+
+  'mac-dinh':   TO_GIAY + '<path d="M9 12h6M9 16h4"/>',
+};
+
+/** Trả về chuỗi SVG một màu. co tính bằng rem. */
+function icon(khoa, co){
+  const d = HINH[khoa] || HINH['mac-dinh'];
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" ' +
+         'stroke-linecap="round" stroke-linejoin="round" ' +
+         'style="width:' + co + 'rem;height:' + co + 'rem;display:block">' + d + '</svg>';
+}
+
+/** Đoán hình cho thẻ nhanh của nguồn — họ chỉ gửi emoji, không gửi mã. */
+function hinhTheoNhan(nhan){
+  const k = khongDau(nhan || '');
+  if(k.indexOf('ket hon') >= 0) return 'ket-hon';
+  if(k.indexOf('khai sinh') >= 0) return 'khai-sinh';
+  if(k.indexOf('tam tru') >= 0 || k.indexOf('cu tru') >= 0) return 'tam-tru';
+  if(k.indexOf('chung thuc') >= 0) return 'chung-thuc';
+  if(k.indexOf('dat') >= 0) return 'dat-dai';
+  return 'mac-dinh';
+}
+
+/* ─────────── Vẽ màn chính ─────────── */
+function veManChinh(){
+  const th = D.thuong_hieu || {};
+  $('#th-ten').textContent = th.ten || 'Trợ Lý Hành Chính';
+  $('#th-khau-hieu').textContent = th.khau_hieu || '';
+  $('#cho-don-vi').textContent = D.don_vi || '';
+  $('#cho-tinh').textContent = 'Tỉnh ' + (D.tinh || '');
+
+  const luoi = $('#luoi-linh-vuc');
+  luoi.innerHTML = '';
+  (D.linh_vuc || []).forEach(lv => {
+    const b = document.createElement('button');
+    b.className = 'the';
+    b.innerHTML = '<span class="icon"></span>' +
+                  '<span class="chu"><b></b><span></span></span>' +
+                  '<span class="so"></span>';
+    b.querySelector('.icon').innerHTML = icon(lv.ma, 3.2);
+    b.querySelector('.chu b').textContent = lv.ten;
+    b.querySelector('.chu span').textContent = lv.phu || '';
+    b.querySelector('.so').textContent = (lv.muc || []).length + ' việc';
+    b.onclick = () => moLinhVuc(lv.ma);
+    luoi.appendChild(b);
+  });
+
+  const nhanh = $('#luoi-nhanh');
+  nhanh.innerHTML = '';
+  (D.the_nhanh || []).forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'the-nhanh';
+    b.innerHTML = '<span class="icon"></span><span><b></b><span></span></span>';
+    b.querySelector('.icon').innerHTML = icon(hinhTheoNhan(t.nhan), 2.4);
+    b.querySelector('b').textContent = t.nhan;
+    b.querySelector('span span').textContent = t.phu || '';
+    b.onclick = () => hoiRoiHien(t.hoi, t.nhan);
+    nhanh.appendChild(b);
+  });
+
+  /* Mảng nguồn CHƯA phủ — nói thẳng, không dựng thẻ bấm vào không ra gì.
+     Người dân đọc được dòng này thì biết mà đi hỏi cán bộ, thay vì đứng thử đi
+     thử lại rồi kết luận robot hỏng. */
+  const kcp = $('#khoi-chua-phu');
+  kcp.innerHTML = '';
+  if((D.chua_phu || []).length){
+    const h = document.createElement('div');
+    h.className = 'tieu-muc';
+    h.style.marginTop = '1.6rem';
+    h.textContent = 'Mảng tôi chưa có dữ liệu';
+    kcp.appendChild(h);
+    D.chua_phu.forEach(x => {
+      const o = document.createElement('div');
+      o.className = 'the-nho';
+      o.innerHTML = '<b></b><p></p>';
+      o.querySelector('b').textContent = x.ten + ' — ' + (x.phu || '');
+      o.querySelector('p').textContent =
+        'Phần này chưa có trong kho văn bản của nguồn, mời anh chị hỏi quầy hướng dẫn.';
+      kcp.appendChild(o);
+    });
+  }
+}
+
+/* ─────────── Màn mục con ─────────── */
+function moLinhVuc(ma){
+  const lv = (D.linh_vuc || []).find(x => x.ma === ma);
+  if(!lv) return;
+  linhVucDang = lv;
+  $('#muc-ten').textContent = lv.ten;
+  $('#muc-phu').textContent = lv.phu || '';
+  const ds = $('#ds-muc');
+  ds.innerHTML = '';
+  (lv.muc || []).forEach((m, i) => {
+    const b = document.createElement('button');
+    b.className = 'muc';
+    b.innerHTML = '<span class="stt"></span><span class="chu"></span>' +
+                  '<span class="co" hidden>Trả lời ngay</span><span class="mui">›</span>';
+    b.querySelector('.stt').textContent = i + 1;
+    b.querySelector('.chu').textContent = m.nhan;
+    if(m.san) b.querySelector('.co').hidden = false;
+    b.onclick = () => hoiRoiHien(m.hoi, m.nhan);
+    ds.appendChild(b);
+  });
+  manTruoc = 'mh-muc';
+  ve('mh-muc');
+  manTruoc = 'mh-muc';
+}
+
+function quayLaiTuDap(){ ve(linhVucDang ? 'mh-muc' : 'mh-tra-cuu'); }
+
+/* ─────────── Hỏi rồi hiện câu trả lời ─────────── */
+let dapDang = '';
+function hoiRoiHien(cau, ten){
+  if(!cau) return;
+  thaoTac();
+  $('#dap-ten').textContent = ten || 'Kết quả tra cứu';
+  $('#hop-dap').innerHTML = '<div class="dang-cho"><span class="quay"></span>' +
+                            'Đang tra trong kho văn bản…</div>';
+  appTuChuyenMan = true;
+  ve('mh-dap');
+  appTuChuyenMan = false;
+
+  /* ① Kho nạp sẵn trong máy — tức thì, không cần mạng */
+  const san = traKhoNapTruoc(cau);
+  if(san.dung){ hienDap(san.hien, san.nguon); doc(san.doc); return; }
+
+  /* ② Chưa nạp thì hỏi thẳng nguồn. Kotlin gọi lại window.hienBanDayDu khi có. */
+  if(coCau() && CAU.hoiRobot){ try{ CAU.hoiRobot(cau); }catch(e){} }
+  else hienDap('Chưa nạp sẵn mục này và máy đang không nối được với nguồn.', []);
+}
+
+function hienDap(chuTho, nguon){
+  const r = locTraLoiNgoai(chuTho);
+
+  /* ⚠ CÂU HỎI LẠI PHẢI THÀNH NÚT BẤM, KHÔNG PHẢI GẠCH ĐẦU DÒNG.
+     Nguồn hay hỏi lại khi câu còn chung chung ("Bạn muốn hỏi về trường hợp đăng ký
+     khai sinh nào ạ?") kèm năm lựa chọn. Bản đầu vẽ chúng thành danh sách chữ —
+     ảnh soi cho thấy đúng năm dòng nhìn như bấm được mà bấm không ra gì. Người dân
+     đứng thử vài lần rồi bỏ đi, và không ai biết vì sao.
+
+     Chữ trên nút là nhãn của họ; câu gửi lại cũng của họ. App chỉ đổi cách bày. */
+  if(r.dung && (r.lua_chon || []).length){
+    const cauHoi = String(chuTho || '').replace(/\{\{[^}]*\}\}/g, '')
+                     .replace(/\*\*/g, '').replace(/^\s*[-–•]\s*$/gm, '').trim();
+    const o = $('#hop-dap');
+    o.innerHTML = '';
+    const h = document.createElement('h2');
+    h.textContent = cauHoi.split('\n').filter(x => x.trim())[0] || 'Anh chị chọn giúp tôi';
+    o.appendChild(h);
+    const p = document.createElement('p');
+    p.textContent = 'Chạm vào việc anh chị cần:';
+    p.style.marginBottom = '1rem';
+    o.appendChild(p);
+    r.lua_chon.forEach((c, i) => {
+      const b = document.createElement('button');
+      b.className = 'muc';
+      b.innerHTML = '<span class="stt"></span><span class="chu"></span><span class="mui">›</span>';
+      b.querySelector('.stt').textContent = i + 1;
+      b.querySelector('.chu').textContent = c.nhan;
+      b.onclick = () => hoiRoiHien(c.gui || c.nhan, c.nhan);
+      o.appendChild(b);
+    });
+    dapDang = chuTho || '';
+    return;
+  }
+
+  $('#hop-dap').innerHTML = doiSangHTML(chuTho || '');
+  // Đặt lại mặc định MỖI lần — câu thủ tục không kèm nguồn không được giữ chữ
+  // "tra trên Internet" của câu trước.
+  $('#dap-phu').textContent = 'Nguồn: thutuc.hanhchinhso.ai.vn';
+  if((nguon || []).length){
+    const o = document.createElement('div');
+    o.className = 'can-cu';
+    /* Nguồn từ tầng tra mạng mang loai:'web' — trang web lạ KHÔNG được hiện dưới tiêu
+       đề "Căn cứ pháp lý", người dân sẽ tưởng đó là văn bản luật (sửa 22/09/2026). */
+    const laWeb = nguon.some(n => n && n.loai === 'web');
+    /* Dòng phụ đầu trang cũng phải đổi theo — để nguyên "thutuc.hanhchinhso.ai.vn" là
+       gán câu trả lời Internet cho nguồn thủ tục chính thức. */
+    $('#dap-phu').textContent = laWeb ? 'Nguồn: tra trên Internet — chỉ để tham khảo'
+                                      : 'Nguồn: thutuc.hanhchinhso.ai.vn';
+    o.innerHTML = '<b>' + (laWeb ? 'Nguồn tham khảo trên Internet' : 'Căn cứ pháp lý') + '</b>';
+    nguon.forEach(n => {
+      const p = document.createElement('div');
+      p.textContent = '· ' + (typeof n === 'string' ? n :
+                      [n.title, n.article, n.page].filter(Boolean).join(' — '));
+      o.appendChild(p);
+    });
+    $('#hop-dap').appendChild(o);
+  }
+  dapDang = chuTho || '';
+}
+
+function docLai(){
+  thaoTac();
+  const r = locTraLoiNgoai(dapDang);
+  doc(r.dung ? r.doc : 'Tôi chưa có nội dung để đọc ạ.');
+}
+
+/**
+ * Markdown của nguồn → HTML.
+ *
+ * Cố ý viết tay thay vì nhúng thư viện: khuôn chữ họ trả về rất đều (tiêu đề đậm,
+ * mục đánh số, dấu ---, khối "📌 Căn cứ pháp lý"), mà thư viện Markdown đầy đủ thì
+ * nặng và mở đường cho HTML lạ đi thẳng vào màn hình công vụ.
+ * Mọi chữ đều qua thoat() trước, nên nội dung của họ không dựng được thẻ nào.
+ */
+/*__BAT_DAU_MARKDOWN__*/
+function thoat(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function doiSangHTML(tho){
+  const dong = thoat(tho).split('\n');
+  let ra = '', trongDS = false;
+  const dam = s => s.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+                    .replace(/\[\[([^\]]*)\]\]/g, '')
+                    .replace(/\{\{([^}]*)\}\}/g, (_, x) => thoat(x.split('||')[0]));
+  for(let d of dong){
+    d = d.replace(/\s+$/, '');
+    if(/^\s*---+\s*$/.test(d)){ if(trongDS){ra += '</ul>'; trongDS = false;} ra += '<hr>'; continue; }
+    if(!d.trim()){ if(trongDS){ra += '</ul>'; trongDS = false;} continue; }
+    const mMuc = d.match(/^\s*(?:\d+\.|[-–•])\s+(.*)$/);
+    if(mMuc){
+      if(!trongDS){ ra += '<ul>'; trongDS = true; }
+      ra += '<li>' + dam(mMuc[1]) + '</li>';
+      continue;
+    }
+    if(trongDS){ ra += '</ul>'; trongDS = false; }
+    /* "## Giay to can chuan bi" — nguon dung ca tieu de kieu ##, khong chi **dam**.
+       Thieu luat nay thi dau ## hien nguyen tren man hinh nguoi dan doc (loi 20/09/2026). */
+    const mThang = d.match(/^\s*(#{1,6})\s+(.*)$/);
+    if(mThang){ ra += '<h3>' + dam(mThang[2].replace(/\s*#+\s*$/, '')) + '</h3>'; continue; }
+    /* "> Luu y dac biet:" — thoat() chay TRUOC nen dau > da thanh &gt;, phai khop &gt;. */
+    const mTrich = d.match(/^\s*&gt;\s?(.*)$/);
+    if(mTrich){ ra += '<blockquote>' + dam(mTrich[1]) + '</blockquote>'; continue; }
+    const mTieu = d.match(/^\s*\*\*(.+?)\*\*\s*:?\s*$/);
+    if(mTieu){ ra += '<h3>' + dam(mTieu[1]) + '</h3>'; continue; }
+    ra += '<p>' + dam(d) + '</p>';
+  }
+  if(trongDS) ra += '</ul>';
+  return ra || '<p>—</p>';
+}
+/*__HET_MARKDOWN__*/
+
+/* ═══════════════════ MÀN TRÒ CHUYỆN AI ═══════════════════
+
+   Anh Trường chốt: KHÔNG phải màn chatbot. Chỉ có mặt biểu cảm robot, ĐÚNG MỘT
+   lời thoại, và một thanh nút mic. Lượt sau xoá lượt trước.
+   ═══════════════════════════════════════════════════════ */
+const MIC_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+  'stroke-width="2.2" stroke-linecap="round" style="width:1.9rem;height:1.9rem;display:block">' +
+  '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/>' +
+  '<path d="M12 18v3"/></svg>';
+const CHAM_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+  'stroke-width="2.2" stroke-linecap="round" style="width:1.9rem;height:1.9rem;display:block">' +
+  '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>';
+
+const TRANG_THAI = {
+  'nghi':      { bt:MIC_SVG,  chu:'Bấm để nói',      lop:'',     dai:'',                        lopDai:'' },
+  'cho':       { bt:CHAM_SVG, chu:'Chờ một chút…',   lop:'cho',  dai:'Đang mở micro…',          lopDai:'cho' },
+  'nghe':      { bt:MIC_SVG,  chu:'Đang nghe…',      lop:'nghe', dai:'Anh chị cứ nói…',         lopDai:'nghe' },
+  'nghi-ngoi': { bt:CHAM_SVG, chu:'Để tôi xem…',     lop:'nghi', dai:'Tôi đang tra giúp anh chị', lopDai:'' },
+  'tra-loi':   { bt:MIC_SVG,  chu:'Bấm để hỏi tiếp', lop:'',     dai:'',                        lopDai:'' },
+  'khong-nghe':{ bt:MIC_SVG,  chu:'Bấm để nói lại',  lop:'',     dai:'Tôi chưa nghe được gì…',   lopDai:'khong' },
+};
+
+/**
+ * Mỗi trạng thái đổi ĐỒNG THỜI bốn thứ: biểu tượng nút · chữ trên nút · màu thanh ·
+ * dải hướng dẫn. Gom vào một hàm là có chủ ý — tách rời thì sớm muộn lệch nhau, và
+ * lệch ở đây nghĩa là nút ghi "Đang nghe" trong khi mic đã tắt.
+ */
+function datTrangThai(t){
+  const c = TRANG_THAI[t] || TRANG_THAI['nghi'];
+  $('#mic-bieu').innerHTML = c.bt;
+  $('#mic-chu').textContent = c.chu;
+  $('#thanh-mic').className = 'thanh-mic ' + c.lop;
+  $('#dai-mic').textContent = c.dai;
+  $('#dai-mic').className = 'dai ' + c.lopDai;
+}
+
+/* Cỡ chữ TỰ CO — đo thật bằng scrollHeight, không đoán theo số ký tự.
+   Chữ Việt có dấu cao hơn chữ không dấu và ngắt dòng khác nhau, nên đếm ký tự
+   luôn sai. Người dân đứng trước robot KHÔNG cuộn màn hình, nên lời thoại dài
+   mấy cũng phải vừa một khung. */
+const CO_LON = 3.1, CO_SAN = 1.2, BUOC = 0.13;
+function datCoChu(){
+  const o = $('#ai-cau'), khung = o && o.parentElement;
+  if(!o || !khung) return;
+  let co = CO_LON;
+  o.style.fontSize = co + 'rem';
+  let vong = 0;
+  while(co > CO_SAN && o.scrollHeight > khung.clientHeight && vong++ < 40){
+    co = Math.round((co - BUOC) * 100) / 100;
+    o.style.fontSize = co + 'rem';
+  }
+}
+
+function hienLoiThoai(chu, laNguoi){
+  const o = $('#ai-cau');
+  o.className = laNguoi ? 'nguoi' : '';
+  const dong = String(chu || '').split('\n').map(x => x.trim()).filter(Boolean);
+  if(dong.length > 1){
+    o.innerHTML = '<ul>' + dong.map(d => '<li>' + thoat(d) + '</li>').join('') + '</ul>';
+  } else {
+    o.textContent = chu || '';
+  }
+  datCoChu();
+}
+
+function vaoManChat(){
+  hienLoiThoai('Chào anh chị. Tôi là robot hướng dẫn của ' + (D.don_vi || 'trung tâm') +
+               '.\nAnh chị cần làm thủ tục gì, bấm nút bên dưới rồi nói với tôi ạ.', false);
+  datTrangThai(agentSanSang ? 'nghi' : 'nghi');
+  capNhatNutMic();
+  xoayViDu();
+}
+
+/* Ví dụ xoay vòng — lấy từ exampleQuestions của nguồn, không tự bịa câu nào */
+let viDuHen = null;
+function xoayViDu(){
+  clearInterval(viDuHen);
+  const ds = [];
+  (D.vi_du || []).forEach(v => (v.cau || []).forEach(c => ds.push(c)));
+  (D.the_nhanh || []).forEach(t => t.hoi && ds.push(t.hoi));
+  if(!ds.length) return;
+  let i = 0;
+  const ve1 = () => { $('#vi-du-xoay').textContent = '“' + ds[i % ds.length] + '”'; i++; };
+  ve1();
+  viDuHen = setInterval(ve1, 6000);
+}
+
+/* ─────────── Mic ─────────── */
+let agentSanSang = false;
+let dangNgheMic = false;
+
+function coMicRobot(){ return coCau() && CAU.batMic && CAU.tatMic; }
+
+function capNhatNutMic(){
+  const bat = coCau() ? (coMicRobot() && agentSanSang) : true;
+  const n1 = $('#nut-mic-chinh'), n2 = $('#thanh-mic');
+  if(n1) n1.hidden = !bat;
+  if(n2){
+    n2.hidden = false;
+    n2.classList.toggle('nghi', !bat);
+    if(!bat && manDang === 'mh-chat'){
+      $('#mic-chu').textContent = 'Đang kết nối…';
+      $('#dai-mic').textContent = 'Anh chị chờ tôi một chút ạ';
+    }
+  }
+}
+
+function bamMic(){
+  if(!agentSanSang && coCau()) return;
+  thaoTac();
+  if(manDang !== 'mh-chat'){ ve('mh-chat'); }
+  if(dangNgheMic){ if(coCau()) try{ CAU.tatMic(); }catch(e){} return; }
+  datTrangThai('cho');
+  if(coCau()){
+    try{ CAU.batMic(); }catch(e){}
+    /* Kotlin mở micro TRỄ 250 ms, hoặc 1 400 ms nếu robot đang nói — robot đóng cửa
+       sổ nghe ngay khi chính nó cất tiếng, mở sớm là nó tự đóng lại cửa vừa mở.
+       Nút phải đổi sang "Đang nghe" đúng nhịp đó, không sớm hơn: người dân thấy chữ
+       "Đang nghe" rồi nói ngay thì nửa câu đầu rơi vào khoảng trống. */
+    clearTimeout(henNhipMic);
+    henNhipMic = setTimeout(() => {
+      if(manDang === 'mh-chat' && !dangNgheMic){ dangNgheMic = true; datTrangThai('nghe'); }
+    }, 1500);
+  }
+  else { datTrangThai('nghe'); dangNgheMic = true; }
+}
+let henNhipMic = null;
+
+function guiONhap(){
+  const o = $('#o-nhap');
+  const c = (o.value || '').trim();
+  if(!c) return;
+  o.value = '';
+  hoiRoiHien(c, 'Kết quả tra cứu');
+}
+
+/* ─────────── Lựa chọn robot đưa ra ─────────── */
+function anLuaChon(){ const o = $('#lua-chon'); if(o){ o.classList.remove('hien'); o.innerHTML = ''; } }
+
+/* ─────────── Hết phiên ─────────── */
+function ketThucPhien(){
+  anLuaChon();
+  if(coCau()){
+    try{ if(CAU.xoaNguCanh) CAU.xoaNguCanh(); }catch(e){}
+    try{ if(CAU.xoaPhienNgoai) CAU.xoaPhienNgoai(); }catch(e){}
+  }
+}
+
+/* Vắng người thì tự về màn chờ và xoá sạch dấu vết lượt trước.
+   Ở sảnh hành chính công đây là chuyện riêng tư, không chỉ là gọn gàng: câu hỏi
+   của người trước không được để người sau đọc thấy. */
+const CHO_VE_MS = 5 * 60 * 1000;
+let henVe = null;
+function henVeCho(){
+  clearTimeout(henVe);
+  if(manDang === 'mh-cho') return;
+  henVe = setTimeout(() => {
+    veManCho();
+  }, CHO_VE_MS);
+}
+['pointerdown', 'keydown'].forEach(e => document.addEventListener(e, henVeCho, true));
+/* Cú chạm THẬT của người → Kotlin (DiChuyen): dừng du hành / chuyến về lễ tân, đặt lại đồng hồ
+   60 giây. ⚠ Chỉ pointerdown/keydown — KHÔNG gọi trong ve(): ve() chạy cả khi chính app tự
+   chuyển màn, và chuyến về lễ tân vừa bắt đầu sẽ tự huỷ chính nó. */
+['pointerdown', 'keydown'].forEach(e => document.addEventListener(e, () => {
+  if(coCau() && CAU.coTuongTac) try{ CAU.coTuongTac(); }catch(x){}
+}, true));
+
+/* ─────────── Mô tả màn hình cho tầng AI ─────────── */
+/* ĐO KHUNG THẬT — gửi qua cầu nối để hiện trong logcat.
+   Suy ra từ dpi là đoán; con số duy nhất đáng tin là con số chính WebView của robot
+   trả về. Giữ lại vĩnh viễn: mỗi lần đổi ROM hay đổi máy, dòng log này nói ngay
+   giao diện đang được vẽ trong khung bao nhiêu. */
+function khungThat(){
+  return innerWidth + 'x' + innerHeight + ' CSS px · dpr ' + (devicePixelRatio || 1) +
+         ' · 1rem = ' + getComputedStyle(document.documentElement).fontSize;
+}
+
+function moTaManHinh(){
+  if(manDang === 'mh-chinh')
+    return 'Màn chính: Tra cứu thủ tục, Giao tiếp AI, Đến điểm lễ tân, Giải trí, Thông tin, Về trạm sạc.';
+  if(manDang === 'mh-tra-cuu')
+    return 'Màn tra cứu: ' + (D.linh_vuc || []).map(x => x.ten).join(', ') + '.';
+  if(manDang === 'mh-giai-tri') return 'Màn giải trí: nhảy múa, đố vui.';
+  if(manDang === 'mh-sac') return 'Màn về trạm sạc — cán bộ nhập mật khẩu.';
+  if(manDang === 'mh-du-hanh') return 'Màn du hành — robot đi dạo quanh sảnh.';
+  if(manDang === 'mh-mua') return 'Robot đang nhảy múa.';
+  if(manDang === 'mh-do') return 'Đang chơi đố vui thủ tục.';
+  if(manDang === 'mh-tt') return 'Màn thông tin Trung tâm.';
+  if(manDang === 'mh-muc' && linhVucDang)
+    return 'Đang xem ' + linhVucDang.ten + ': ' +
+           (linhVucDang.muc || []).map(m => m.nhan).join('; ') + '.';
+  if(manDang === 'mh-dap') return 'Đang hiện câu trả lời đầy đủ trên màn hình.';
+  if(manDang === 'mh-chat') return 'Màn trò chuyện bằng giọng nói.';
+  return 'Màn chờ.';
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CẦU NỐI — Kotlin gọi vào những hàm dưới đây.
+   Thiếu một hàm là tầng Kotlin gọi vào khoảng không: không lỗi, không log.
+   Cổng canh: python tools/doi-chieu-cau-noi.py
+   ══════════════════════════════════════════════════════════════════════════ */
+window.baoAISanSang = function(ok){
+  agentSanSang = !!ok;
+  capNhatNutMic();
+  if(agentSanSang && manDang === 'mh-chat') datTrangThai('nghi');
+};
+
+window.nhanLoiNoi = function(ai, cau){
+  if(manDang !== 'mh-chat') return;
+  if(ai === 'nguoi'){
+    dangNgheMic = false;
+    hienLoiThoai(cau, true);
+    datTrangThai('nghi-ngoi');
+  } else {
+    hienLoiThoai(cau, false);
+    datTrangThai('tra-loi');
+  }
+};
+
+window.robotDocXong = function(){ if(manDang === 'mh-chat') datTrangThai('tra-loi'); };
+window.baoMicTuTat = function(){ dangNgheMic = false; if(manDang === 'mh-chat') datTrangThai('nghi-ngoi'); };
+window.baoMicKhongNgheDuoc = function(){ dangNgheMic = false; datTrangThai('khong-nghe'); };
+window.baoDanDuong = function(){};
+window.baoTinhTrangBanDo = function(){};
+window.luiHeThong = function(){ if(manDang !== 'mh-cho') ve('mh-cho'); };
+
+/** Mic đã mở thật — Kotlin báo lên để nút đổi trạng thái đúng lúc. */
+window.micDaMo = function(){ dangNgheMic = true; if(manDang === 'mh-chat') datTrangThai('nghe'); };
+
+/**
+ * Robot tra được thủ tục → mở thẳng trang chi tiết.
+ * HỎI thì đứng yên, RA LỆNH mới đi — ở đây chỉ mở trang, không lái bánh xe.
+ */
+window.goiYTuRobot = function(cau){
+  if(!cau) return;
+  appTuChuyenMan = true;
+  hoiRoiHien(cau, 'Kết quả tra cứu');
+  appTuChuyenMan = false;
+};
+
+/** Kotlin đưa câu trả lời đầy đủ của nguồn về để hiện lên màn hình. */
+window.hienBanDayDu = function(chuTho, nguonJSON){
+  let ng = [];
+  try{ ng = JSON.parse(nguonJSON || '[]'); }catch(e){}
+  if(manDang === 'mh-dap') hienDap(chuTho, ng);
+  if(manDang === 'mh-chat'){
+    const r = locTraLoiNgoai(chuTho);
+    hienLoiThoai(r.dung ? r.hien : 'Tôi chưa tra được mục này ạ.', false);
+    datTrangThai('tra-loi');
+  }
+};
+
+/** Lựa chọn nguồn đưa ra → nút bấm. Người lớn tuổi không đọc lại nổi câu dài để chọn bằng miệng. */
+window.hienLuaChonNgoai = function(ds){
+  let a = [];
+  try{ a = JSON.parse(ds || '[]'); }catch(e){}
+  const o = $('#lua-chon');
+  o.innerHTML = '';
+  if(!a.length){ o.classList.remove('hien'); return; }
+  a.slice(0, 5).forEach(c => {
+    const b = document.createElement('button');
+    b.textContent = c.nhan || c.gui;
+    b.onclick = () => { anLuaChon(); hoiRoiHien(c.gui || c.nhan, c.nhan); };
+    o.appendChild(b);
+  });
+  o.classList.add('hien');
+};
+
+window.locCauNgoaiChoKotlin = function(tho){ return JSON.stringify(locTraLoiNgoai(tho)); };
+window.traKhoNapTruocChoKotlin = function(cau){ return JSON.stringify(traKhoNapTruoc(cau)); };
+
+/* Danh sách thủ tục trong kho cho bước "LLM chọn mục" (TraLoi.chonMucKho).
+   CHỈ mục có NỘI DUNG THẬT — bỏ menu hỏi lại, để LLM chọn đúng một thủ tục cụ thể.
+   Gửi TÊN thủ tục (dòng "Tra cứu thủ tục: …") cho LLM dễ khớp; app giữ `hoi` để tra lại. */
+window.dsCauKhoChoKotlin = function(){
+  const kho = (typeof D !== 'undefined' && D && D.nap_truoc) ? D.nap_truoc : {};
+  const ds = [], daCo = new Set();
+  for(const k in kho){
+    const m = kho[k];
+    if(!m || !m.dap || /\{\{/.test(m.dap)) continue;
+    const ten = ((m.dap.match(/Tra cứu thủ tục:\s*([^\n*]+)/i) || [])[1] || m.hoi || '').trim();
+    if(!ten || daCo.has(ten)) continue;          // cùng tên = cùng thủ tục, gửi một lần
+    daCo.add(ten);
+    ds.push({ hoi: m.hoi, ten: ten });
+  }
+  return JSON.stringify(ds);
+};
+
+/** Tóm tắt cho tầng AI — CHỈ tên mục, không gửi nội dung thủ tục đi đâu cả. */
+window.tomTatChoAI = function(cau){
+  const ds = [];
+  (D.linh_vuc || []).forEach(lv => (lv.muc || []).forEach(m => ds.push(m)));
+  const k = khoaNapTruoc(cau);
+  const hop = ds.filter(m => {
+    const a = khoaNapTruoc(m.nhan), b = khoaNapTruoc(m.hoi);
+    return k && (a.indexOf(k) >= 0 || k.indexOf(a) >= 0 || b.indexOf(k) >= 0);
+  }).slice(0, 5);
+  return JSON.stringify({ muc: hop.length ? 'chua-chac' : 'khong-thay',
+                          ung_vien: hop.map((m, i) => ({ id: i + 1, ten: m.nhan, vi_tri: '' })) });
+};
+
+/** App này không có màn cấp cứu riêng — lớp chặn khẩn cấp chỉ hô bằng tiếng. */
+window.moManCapCuuTuAI = function(){ capCuuDangHien = true; };
+
+/* Bỏ dấu tiếng Việt — dùng chung cho mọi phép so khớp trong máy.
+   Phải khớp chuan_hoa() bên tools/tai-nguon.py và dung-du-lieu.py, lệch một chút
+   là không câu nào tra ra kho nạp sẵn. */
+function khongDau(s){
+  return String(s == null ? '' : s).toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\u0111/g, 'd')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+}
+
+/*__BAT_DAU_LOC_NGOAI__
+   ═══════════════════════════════════════════════════════════════════════════
+   BỘ LỌC CÂU TRẢ LỜI CỦA TRỢ LÝ NGOÀI (thutuc.hanhchinhso.ai.vn)
+
+   Anh Trường chốt 18/09/2026: trợ lý ngoài là KHO CHÍNH, kho thủ tục nằm trong
+   robot lùi xuống làm lưới đỡ khi trợ lý ngoài không trả lời được.
+
+   Vì có bộ lọc này: câu của trợ lý ngoài KHÔNG BAO GIỜ được đi thẳng ra loa.
+   Bốn thứ đã đo được trên máy chủ thật ngày 18/09/2026 — mỗi thứ là một lý do:
+
+   ① LỖI HẠN MỨC RƠI THẲNG VÀO CÂU TRẢ LỜI. Đo thật:
+        event: claude_delta {"text":"You've hit your limit · resets 1pm"}
+        event: answer      {"answer":"⚠️ Lưu ý kiểm chứng… You've hit your limit…"}
+      Không chặn thì robot đứng giữa sảnh đọc to một câu tiếng Anh báo hết hạn mức.
+      Đây là thứ nguy hiểm nhất, và nó nằm ở ĐÚNG trường answer chứ không phải
+      trường lỗi — nên phải soi nội dung, không thể chỉ nhìn mã HTTP.
+
+   ② CÚ PHÁP RIÊNG để web dựng nút: [[FACETS …]] · [[GROUP …]] · {{A||B||common}}
+      Đọc nguyên văn ra loa là một tràng dấu ngoặc.
+
+   ③ HỎI LẠI NHIỀU TẦNG. Hỏi "đăng ký khai sinh cần giấy tờ gì" thì nó trả về năm
+      lựa chọn chứ không trả lời. Robot phải ĐỌC câu hỏi rồi HIỆN lựa chọn thành
+      nút bấm — người lớn tuổi không đọc lại nổi cả câu dài để chọn bằng miệng.
+
+   ④ Câu TỪ CHỐI ngoài phạm vi (Đắk Lắk · Lâm Đồng). Gặp câu này thì đừng đọc
+      nguyên văn của họ, mà rơi về kho trong robot — kho mình có thể có.
+
+   ⚠ Khối này THUẦN, không đụng DOM, để tools/thu-tro-ly-ngoai.mjs bóc ra chạy
+     được bằng Node. Đừng đưa thứ gì cần document/window vào đây.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Dấu hiệu câu trả lời HỎNG — gặp là vứt, rơi về kho trong robot.
+   Cố ý bắt cả tiếng Anh lẫn tiếng Việt: máy chủ của họ chạy trên nền nước ngoài
+   nên lỗi hạ tầng gần như luôn bật ra tiếng Anh giữa một câu tiếng Việt. */
+const NGOAI_HONG = [
+  /hit your limit/i, /rate limit/i, /quota/i, /resets?\s+\d{1,2}\s*(am|pm)/i,
+  /you've\s+hit/i, /try again later/i,
+  /resets?\s+\w{3}\s+\d{1,2}/i, /temporarily unavailable/i,
+  /internal server error/i, /bad gateway/i, /timed?\s*out/i,
+  /an error occurred/i, /something went wrong/i,
+  /\bundefined\b/, /\bnull\b/, /\[object Object\]/,
+];
+
+/* Câu TỪ CHỐI vì ngoài phạm vi địa bàn của họ. Không phải lỗi, nhưng cũng không
+   dùng được — kho trong robot có thể trả lời được, nên rơi về đó. */
+const NGOAI_TU_CHOI = [
+  /chỉ trả lời các câu hỏi về/i,
+  /ngoài phạm vi/i,
+  /vui lòng liên hệ bộ phận một cửa địa phương/i,
+];
+
+/**
+ * Bóc một câu trả lời thô của trợ lý ngoài thành thứ robot dùng được.
+ *
+ * Trả về:
+ *   { dung:false, vi_sao:'…' }                       → vứt, rơi về kho trong robot
+ *   { dung:true, doc:'…', hien:'…', lua_chon:[…] }   → doc = câu robot ĐỌC,
+ *                                                       hien = chữ lên màn hình,
+ *                                                       lua_chon = nút bấm (có thể rỗng)
+ */
+function locTraLoiNgoai(tho){
+  const goc = (tho == null ? '' : String(tho)).trim();
+  if(!goc) return { dung:false, vi_sao:'rỗng' };
+
+  for(const re of NGOAI_HONG)
+    if(re.test(goc)) return { dung:false, vi_sao:'câu có dấu hiệu lỗi hạ tầng' };
+
+  /* Lấy các lựa chọn {{nhãn||câu gửi lại||cờ}} TRƯỚC khi bóc markup.
+     Ô thứ hai là câu gửi lại cho máy chủ; không có thì dùng chính nhãn. */
+  /* ⚠ Ô thứ hai của {{A||B}} có HAI nghĩa, tuỳ có khối FACETS hay không:
+       · CÓ  [[FACETS base="..." tail="..."]]  → B là MẢNH, câu thật = base + B + tail
+       · KHÔNG có                             → B chính là câu gửi lại, nguyên vẹn
+
+     Dòng default của chính nguồn chứng minh nghĩa thứ nhất:
+       base="Thủ tục đăng ký kết hôn" · tail="cần giấy tờ gì và nộp ở đâu?"
+       default="Thủ tục đăng ký kết hôn lần đầu (trong nước) cần giấy tờ gì và nộp ở đâu?"
+
+     Bản trước gửi trần mảnh "lần đầu trong nước" — ba chữ rời rạc không khớp được văn
+     bản nào, nên người dân bấm ĐÚNG nút mà vẫn không ra nội dung. Sửa 20/09/2026. */
+  const mFacet = goc.match(/\[\[FACETS\s([^\]]*)\]\]/);
+  let nen = '', duoi = '';
+  if(mFacet){
+    const g = mFacet[1];
+    const mb = g.match(/base="([^"]*)"/);
+    const mt = g.match(/tail="([^"]*)"/);
+    nen = mb ? mb[1].trim() : '';
+    duoi = mt ? mt[1].trim() : '';
+  }
+  const luaChon = [];
+  const reChon = /\{\{([^}]*)\}\}/g;
+  let m;
+  while((m = reChon.exec(goc)) !== null){
+    const o = m[1].split('||').map(s => s.trim());
+    const nhan = o[0];
+    if(!nhan) continue;
+    let gui;
+    if(nen && o[1]) gui = [nen, o[1], duoi].filter(Boolean).join(' ');
+    else            gui = o[1] || nhan;
+    luaChon.push({ nhan: nhan, gui: gui });
+  }
+
+  /* Bóc sạch markup: [[…]] cả khối, {{…}} giữ lại nhãn, rồi tới Markdown. */
+  let s = goc
+    .replace(/\[\[[^\]]*\]\]/g, ' ')
+    .replace(/\{\{([^}]*)\}\}/g, (_, x) => x.split('||')[0])
+    .replace(/^\s*[-*•]\s+/gm, '')        // gạch đầu dòng của Markdown
+    .replace(/\*\*([^*]+)\*\*/g, '$1')    // đậm
+    .replace(/\*([^*]+)\*/g, '$1')        // nghiêng
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/^#{1,6}\s*/gm, '')
+    .replace(/^\s*>\s?/gm, '')          // dau trich dan cua Markdown
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1');
+
+  /* ⚠️ "Lưu ý kiểm chứng" = CHÍNH HỌ NÓI CÂU NÀY CHƯA CÓ CĂN CỨ PHÁP LÝ.
+     Nguyên văn đo được 18/09/2026:
+       "⚠️ Lưu ý kiểm chứng: Câu trả lời dưới đây CHƯA trích dẫn được căn cứ pháp lý
+        cụ thể từ kho văn bản. Cán bộ vui lòng kiểm chứng trước khi sử dụng…"
+
+     Bản trước chỉ XOÁ dòng đó rồi vẫn đọc phần còn lại. Sai, và sai theo hướng nguy
+     hiểm nhất. Đo 18/09/2026 cho thấy máy chủ của họ có HAI đường: khớp kho văn bản
+     (trả kèm citations, dưới một giây) và không khớp thì hỏi mô hình ngôn ngữ (vài
+     giây, KHÔNG căn cứ). Dòng cảnh báo này đánh dấu đúng đường thứ hai.
+
+     Robot đứng giữa sảnh nói với người dân "hồ sơ cần những giấy tờ này" — câu đó
+     phải có căn cứ, hoặc không được nói. Vứt thì rơi về kho trong robot, ở đó mọi
+     câu đều bám niêm yết. Thà nói "tôi chưa rõ, mời anh chị tới quầy". */
+  if(/L[ưu]u ý ki[ểe]m ch[ứu]ng|ch[ưu]a tr[íi]ch d[ẫa]n [đd][ưu][ợo]c c[ăa]n c[ứu] ph[áa]p l[ýy]/i.test(goc))
+    return { dung:false, vi_sao:'trợ lý ngoài tự ghi là chưa có căn cứ pháp lý' };
+
+  s = s.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+  if(!s) return { dung:false, vi_sao:'bóc xong không còn chữ nào' };
+
+  for(const re of NGOAI_TU_CHOI)
+    if(re.test(s)) return { dung:false, vi_sao:'trợ lý ngoài nói ngoài phạm vi của họ' };
+
+  /* Câu quá ngắn sau khi bóc thì coi như không có nội dung. Ngưỡng 12 ký tự:
+     "Cần làm rõ" (10) là tiêu đề chứ không phải câu trả lời. */
+  if(s.replace(/\s/g, '').length < 12)
+    return { dung:false, vi_sao:'quá ngắn, không có nội dung' };
+
+  /* Phần ĐỌC: bỏ luôn danh sách lựa chọn khỏi lời đọc — đọc năm lựa chọn dài
+     thành tiếng thì người nghe quên ngay vế đầu. Lựa chọn để MẮT nhìn và TAY bấm. */
+  /* MÀN HÌNH HIỆN ĐỦ, MIỆNG NÓI GỌN — hai thứ này KHÔNG giống nhau.
+
+     Đo 18/09/2026 trên máy chủ thật: hỏi "chứng thực chữ ký" thì trả về 2.933 ký tự,
+     gồm đủ các bước, khối "Căn cứ pháp lý" liệt kê sáu nghị định kèm số trang, và một
+     đường link. Người dân cần NHÌN THẤY hết — đó đúng là chỗ hơn hẳn kho trong robot.
+     Nhưng ĐỌC thành tiếng thì mất gần ba phút, không ai đứng nghe tới câu thứ ba.
+
+     rutGonDeDoc() vốn viết cho kho nạp trước, rút đúng thứ người đứng ở quầy cần: tên
+     thủ tục + danh sách giấy tờ phải mang. Đường hỏi trực tiếp nay dùng chung hàm đó —
+     một cách rút duy nhất, không có hai bản lệch nhau.
+
+     ⚠ Bỏ qua khi câu CÓ lựa chọn: đó là câu hỏi lại, vốn đã ngắn. */
+  let doc = s;
+  if(!luaChon.length && s.length > 400 && typeof rutGonDeDoc === 'function'){
+    const gon = rutGonDeDoc(goc);
+    /* Rút được thì dùng. Không rút được (câu không theo khuôn quen) thì giữ nguyên —
+       thà đọc dài còn hơn đọc thiếu mất mấy món giấy tờ. */
+    if(gon && gon.replace(/\s/g, '').length >= 12) doc = gon;
+  }
+  if(luaChon.length){
+    for(const c of luaChon) doc = doc.split(c.nhan).join(' ');
+    doc = doc.replace(/[ \t]+/g, ' ').replace(/\n{2,}/g, '\n').trim();
+    if(doc.replace(/\s/g, '').length < 12)
+      doc = 'Anh chị cho tôi hỏi rõ hơn một chút ạ.';
+    doc += ' Mời anh chị chọn một mục trên màn hình.';
+  }
+
+  return { dung:true, doc: doc, hien: s, lua_chon: luaChon };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   KHO NẠP TRƯỚC — câu trả lời của trợ lý ngoài, hỏi sẵn từ trước
+
+   Đo trên máy chủ thật 18/09/2026: mỗi câu mất 44–61 giây và trả về 2.700–3.800
+   ký tự. Không thể hỏi lúc người dân đang đứng trước robot — họ đợi bảy tám giây
+   là bỏ đi, và ba nghìn ký tự đọc thành tiếng mất ba bốn phút.
+
+   Nên đổi cách dùng: hỏi TRƯỚC, ở nhà, bằng tools/nap-truoc.py, rồi cất vào đây.
+   Robot tra kho này trong chưa tới một phần nghìn giây, không cần mạng, không tốn
+   lượt gọi nào của ai.
+
+   Nội dung vẫn là của trợ lý ngoài — nghĩa là vẫn có mẫu đơn, số hiệu thông tư,
+   trích dẫn nguồn, và đúng địa bàn Đắk Lắk.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/** Khoá tra kho: bỏ dấu, thường hoá, bóp khoảng trắng. PHẢI khớp chuan_hoa() bên
+    tools/nap-truoc.py — lệch một chút là không câu nào tra ra. */
+function khoaNapTruoc(s){
+  return khongDau(s || '').replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Rút gọn câu trả lời dài thành câu ROBOT ĐỌC ĐƯỢC.
+ *
+ * Câu của trợ lý ngoài có cấu trúc khá đều:
+ *     **Tra cứu thủ tục: <tên>**
+ *     **Giấy tờ cần chuẩn bị:**
+ *     1. **<tên giấy tờ>** — <giải thích dài>
+ *     2. …
+ *     ---
+ *     **Các bước thực hiện** …
+ *     **Thông tin hướng dẫn thêm** …
+ *
+ * Robot ĐỌC: tên thủ tục + danh sách tên giấy tờ (bỏ phần giải thích sau dấu gạch).
+ * Màn hình HIỆN: toàn bộ.
+ *
+ * Vì sao cắt ở dấu "—": phần sau nó là giải thích ngoặc kép dài dòng ("có thể tải
+ * tại Cổng Dịch vụ công Quốc gia https://…"), đọc lên thì người nghe mất dấu vế đầu.
+ * Người dân cần biết PHẢI MANG GÌ; chi tiết để mắt đọc trên màn hình.
+ */
+function rutGonDeDoc(dap){
+  const goc = (dap || '').trim();
+  if(!goc) return '';
+
+  /* Tên thủ tục ở dòng tiêu đề đầu tiên */
+  let ten = '';
+  const mTen = goc.match(/\*\*\s*Tra c[ứu]u th[ủu] t[ụu]c\s*:\s*([^*\n]+)\*\*/i);
+  if(mTen) ten = mTen[1].trim().replace(/\s+/g, ' ');
+
+  /* Khối "Giấy tờ cần chuẩn bị" — tới dấu --- hoặc tiêu đề đậm kế tiếp */
+  let khoi = '';
+  const mKhoi = goc.match(/\*\*[^*]*gi[ấa]y t[ờo][^*]*\*\*\s*:?\s*([\s\S]*?)(?:\n\s*---|\n\s*\*\*[^*]*(?:b[ưu][ớo]c|h[ưu][ớo]ng d[ẫa]n|th[ờo]i h[ạa]n|l[ệe] ph[íi])[^*]*\*\*|$)/i);
+  if(mKhoi) khoi = mKhoi[1];
+
+  /* Mỗi mục đánh số cấp 1: "1. **Tên giấy tờ** — giải thích" */
+  const muc = [];
+  const reMuc = /^\s*\d+\.\s*\*\*([^*]+)\*\*/gm;
+  let m;
+  while((m = reMuc.exec(khoi)) !== null){
+    let t = m[1].trim()
+      .replace(/\s*\([^)]*\)\s*$/, '')   /* bỏ ngoặc cuối: "(Mẫu CT01 theo Thông tư…)" */
+      .replace(/\s+/g, ' ')
+      .replace(/[:：]\s*$/, '');
+    if(t.length > 2) muc.push(t);
+  }
+  /* Không có mục đánh số thì thử gạch đầu dòng */
+  if(!muc.length){
+    const reG = /^\s*[-–•]\s*\*\*([^*]+)\*\*/gm;
+    while((m = reG.exec(khoi)) !== null){
+      const t = m[1].trim().replace(/\s+/g, ' ').replace(/[:：]\s*$/, '');
+      if(t.length > 2) muc.push(t);
+    }
+  }
+
+  if(ten && muc.length){
+    /* Quá nhiều món thì đọc năm món đầu — nghe hơn năm thứ là không nhớ nổi. */
+    const doc5 = muc.slice(0, 5);
+    let c = 'Thủ tục ' + ten.replace(/^Th[ủu] t[ụu]c\s+/i, '') + '. ' +
+            'Anh chị cần chuẩn bị: ' + doc5.join('; ') + '.';
+    if(muc.length > doc5.length) c += ' Và một số giấy tờ khác.';
+    c += ' Chi tiết đang hiện trên màn hình, mời anh chị xem thêm ạ.';
+    return c;
+  }
+
+  /* Không bóc được theo khuôn thì lấy mấy câu đầu, cắt ở dấu chấm. */
+  const tho = goc.replace(/\*\*/g, '').replace(/^#{1,6}\s*/gm, '')
+                 .replace(/\s+/g, ' ').trim();
+  if(tho.length <= 320) return tho;
+  const cat = tho.slice(0, 320);
+  const p = cat.lastIndexOf('. ');
+  return (p > 120 ? cat.slice(0, p + 1) : cat) +
+         ' Chi tiết đang hiện trên màn hình, mời anh chị xem thêm ạ.';
+}
+
+/**
+ * Tra kho nạp trước.
+ * Trả { dung:true, doc, hien, nguon[] } hoặc { dung:false }.
+ */
+/* Từ NỘI DUNG của một câu đã bỏ dấu: bỏ các từ khuôn câu hỏi ("thủ tục", "cần giấy tờ
+   gì", "nộp ở đâu"…) vì câu nào trong kho cũng có, giữ lại chúng là câu nào cũng giống nhau.
+   ⚠ GIỮ "ho" (hộ): "hộ kinh doanh", "hộ nghèo", "hộ tịch" phân biệt thủ tục với nhau. */
+const TU_KHUON = new Set(('thu tuc can giay to gi nop o dau va cua cho la co khong nao nhu ' +
+  'duoc thuc hien tai ubnd xa cap nhung gom khi ban toi minh muon lam hoi ve thi phai ' +
+  'ra sao the the nao nhe a a oi voi di dang mot').split(' '));
+function tuNoiDung(s){
+  return khongDau(s || '').split(/\s+/).filter(w => w && !TU_KHUON.has(w));
+}
+
+function traKhoNapTruoc(cau){
+  const kho = (typeof D !== 'undefined' && D && D.nap_truoc) ? D.nap_truoc : null;
+  if(!kho) return { dung:false };
+  const k = khoaNapTruoc(cau);
+  if(!k) return { dung:false };
+
+  /* Câu cán bộ đã TẮT thì coi như không có trong kho — luồng rơi xuống lưới đỡ.
+     Hàm khoBiTat nằm ngoài vùng thuần này (nó phải đọc thẻ nhớ), nên gọi có rào. */
+  const biTat = (typeof khoBiTat === 'function') ? khoBiTat : function(){ return false; };
+
+  let muc = biTat(k) ? null : kho[k];
+
+  /* Không khớp nguyên câu thì tìm câu chứa nhau — người dân hỏi "khai sinh quá hạn"
+     trong khi kho lưu "Thủ tục đăng ký khai sinh quá hạn cần giấy tờ gì?".
+     ⚠ Đòi câu hỏi của dân dài ít nhất 8 ký tự: ngắn hơn thì khớp bừa vào bất cứ mục
+       nào, mà khớp bừa ở đây tệ hơn không khớp — robot đọc nguyên một thủ tục sai. */
+  if(!muc && k.length >= 8){
+    for(const khoaKho in kho){
+      if(biTat(khoaKho)) continue;
+      if(khoaKho.indexOf(k) >= 0 || k.indexOf(khoaKho) >= 0){ muc = kho[khoaKho]; break; }
+    }
+  }
+  /* Bước 3 — KHỚP THEO TỪ NỘI DUNG (thêm 22/09/2026, đo trên robot thật).
+     Anh Trường nói "Thủ tục chấm dứt hoạt động kinh doanh cần giấy tờ gì?", kho lưu
+     "…chấm dứt hoạt động HỘ kinh doanh…" — lệch MỘT chữ ở giữa nên hai bước trên đều
+     trượt; robot chờ nguồn 9 giây rồi đáp "chưa có" cho thủ tục đang nằm sẵn trong máy.
+     Người nói tự nhiên và bộ nhận dạng giọng nói gần như không bao giờ lặp đúng từng chữ.
+     Ba chốt để KHÔNG khớp nhầm sang thủ tục khác:
+       ① ≥ 80% từ nội dung của câu hỏi có trong mục kho
+       ② ≥ 60% từ nội dung của mục kho có trong câu hỏi
+       ③ mục đứng đầu phải hơn mục thứ hai ít nhất 0,15 — sàn sàn nhau là không chắc,
+          bỏ, để các tầng sau lo */
+  if(!muc){
+    const q = tuNoiDung(k);
+    if(q.length >= 2){
+      let nhat = null, diemNhat = 0, diemNhi = 0;
+      for(const khoaKho in kho){
+        if(biTat(khoaKho) || !kho[khoaKho] || !kho[khoaKho].dap) continue;
+        const t = tuNoiDung(khoaKho);
+        if(!t.length) continue;
+        const tap = new Set(t);
+        const trung = q.filter(w => tap.has(w)).length;
+        const phuQ = trung / q.length, phuK = trung / t.length;
+        if(phuQ < 0.8 || phuK < 0.6) continue;
+        const diem = (phuQ + phuK) / 2;
+        if(diem > diemNhat){ diemNhi = diemNhat; diemNhat = diem; nhat = khoaKho; }
+        else if(diem > diemNhi){ diemNhi = diem; }
+      }
+      if(nhat && diemNhat - diemNhi >= 0.15) muc = kho[nhat];
+    }
+  }
+  if(!muc || !muc.dap) return { dung:false };
+
+  /* Mục kho là MENU HỎI LẠI ("Cần làm rõ" + {{lựa chọn}}) thì PHẢI qua bộ lọc menu, không
+     qua rutGonDeDoc — hàm đó viết cho nội dung thủ tục. Đo trên robot 22/09/2026: đi nhầm
+     đường là robot đọc NGUYÊN KÝ HIỆU "}}" và "-" ra loa, còn màn hình không có nút bấm. */
+  if(/\{\{/.test(muc.dap)){
+    const r = locTraLoiNgoai(muc.dap);
+    if(!r.dung) return { dung:false };
+    return { dung: true, doc: r.doc, hien: muc.dap, nguon: muc.nguon || [],
+             lua_chon: r.lua_chon || [] };
+  }
+
+  return {
+    dung: true,
+    doc: rutGonDeDoc(muc.dap),
+    hien: muc.dap,
+    nguon: muc.nguon || [],
+  };
+}
+/*__HET_LOC_NGOAI__*/
+
+/* ══════════════════ MÀN QUẢN LÝ — bấm giữ mặt robot 1,2 giây ══════════════════
+   Giấu khỏi người dân, nhưng cán bộ mở được ngay tại chỗ, không phải cắm cáp.
+   Máy đặt giữa sảnh thì đó là điều kiện bắt buộc. */
+function moManKho(){
+  const lv = D.linh_vuc || [];
+  const tongMuc = lv.reduce((s, x) => s + (x.muc || []).length, 0);
+  const san = lv.reduce((s, x) => s + (x.muc || []).filter(m => m.san).length, 0);
+  $('#kho-tom').textContent = 'Nguồn: ' + (D.nguon || '—') + ' · cập nhật ' + (D.cap_nhat || '—');
+
+  let h = '';
+  h += '<div class="tieu-muc">Robot trả lời được những gì</div>';
+  h += '<table class="bang"><tr><th>Lĩnh vực</th><th>Số việc</th><th>Trả lời ngay</th>' +
+       '<th>Phải hỏi nguồn</th></tr>';
+  lv.forEach(x => {
+    const n = (x.muc || []).length, s = (x.muc || []).filter(m => m.san).length;
+    h += '<tr><td>' + thoat(x.ten) + '</td><td>' + n + '</td><td>' + s +
+         '</td><td>' + (n - s) + '</td></tr>';
+  });
+  h += '<tr><td><b>Tổng</b></td><td><b>' + tongMuc + '</b></td><td><b>' + san +
+       '</b></td><td><b>' + (tongMuc - san) + '</b></td></tr></table>';
+
+  if((D.chua_phu || []).length){
+    h += '<div class="tieu-muc" style="margin-top:1.4rem">Mảng nguồn chưa phủ</div>';
+    D.chua_phu.forEach(x => {
+      h += '<div class="the-nho"><b>' + thoat(x.ten) + '</b><p>' + thoat(x.vi_sao) + '</p></div>';
+    });
+  }
+
+  if((D.van_ban || []).length){
+    h += '<div class="tieu-muc" style="margin-top:1.4rem">Văn bản nguồn đã lập chỉ mục (' +
+         D.van_ban.length + ')</div>';
+    D.van_ban.forEach(v => {
+      h += '<div class="the-nho"><b>' + thoat(v.ma) + '</b><p>' + thoat(v.phu) + '</p></div>';
+    });
+  }
+
+  if((D.can_bo_sung || []).length){
+    h += '<div class="tieu-muc" style="margin-top:1.4rem">Nguồn còn cần bổ sung (' +
+         D.can_bo_sung.length + ')</div>';
+    D.can_bo_sung.forEach(v => {
+      h += '<div class="the-nho"><b>' + thoat(v.ten) + '</b><p>' + thoat(v.vi_sao) + '</p></div>';
+    });
+    if(D.cho_ai) h += '<p style="margin-top:.6rem;color:var(--chu-nhat)">Đang chờ ' +
+                      thoat(D.cho_ai) + (D.cho_den ? ' · dự kiến ' + thoat(D.cho_den) : '') + '</p>';
+  }
+
+  $('#kho-noi-dung').innerHTML = h;
+  $('#phu-kho').classList.add('hien');
+}
+function dongKho(){ $('#phu-kho').classList.remove('hien'); }
+
+(function(){
+  const o = $('#ai-tieu-de');
+  if(!o) return;
+  let hen = null, daGiu = false;
+  const batDauGiu = () => { daGiu = false; clearTimeout(hen);
+    hen = setTimeout(() => { daGiu = true; moManKho(); }, 1200); };
+  const thoiGiu = () => clearTimeout(hen);
+  o.addEventListener('pointerdown', batDauGiu);
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(e => o.addEventListener(e, thoiGiu));
+  o.addEventListener('click', e => { if(daGiu){ e.stopPropagation(); daGiu = false; } }, true);
+})();
+
+/* ─────────── Biểu cảm robot ─────────── */
+/* ⚠ Tên file phải khớp TỪNG KÝ TỰ với thư mục bieu-cam/. Sai tên thì WebView bỏ qua
+   lặng lẽ — màn hình đen, không một dòng lỗi. Bộ soi bắt được vì nó đọc console.
+   ⚠ Clip phải là H.264: WebView KHÔNG giải mã HEVC, cũng đen im lìm như vậy. */
+const CLIP_CHO = 'bieu-cam/emoji_blink.mp4';
+
+/** Ảnh bìa trong suốt 1×1 — WebView Android không còn vẽ nút ▶ xám lên video đang nạp. */
+const ANH_BIA_TRONG = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+/**
+ * BỘ ĐỔI MẶT HAI LỚP — dùng chung cho màn AI và màn nhảy múa.
+ * Clip mới nạp ở lớp đang ẩn; chỉ khi nó ĐÃ PHÁT (sự kiện playing, cộng một nhịp khung hình)
+ * mới làm mờ lớp cũ đi. Đổi src trên một thẻ duy nhất là lộ ra khoảng trống giữa hai clip —
+ * trên robot khoảng trống đó là nút ▶ xám của WebView.
+ */
+function taoBoDoiMat(v1, v2){
+  let tren = v1, duoi = v2, dang = '';
+  [v1, v2].forEach(v => { v.poster = ANH_BIA_TRONG; v.onerror = () => {}; });
+  return function(src){
+    if(!src || src === dang) return;
+    dang = src;
+    if(!tren.getAttribute('src')){                 // lần đầu: nạp thẳng lớp trên
+      tren.classList.remove('an'); duoi.classList.add('an');
+      tren.src = src; tren.play().catch(() => {});
+      return;
+    }
+    const moi = duoi, cu = tren;
+    moi.onplaying = () => {
+      moi.onplaying = null;
+      setTimeout(() => {                           // đợi khung đầu thật sự lên màn
+        /* Lớp mới hiện ĐÈ LÊN lớp cũ còn nguyên, hiện xong mới ẩn lớp cũ. Bản trước làm mờ
+           hai lớp cùng lúc: giữa chừng cả hai chỉ còn nửa độ đậm → mặt robot xám đi một
+           nhịp (quay màn hình robot 24/09: 4/112 khung). */
+        moi.style.zIndex = 2; cu.style.zIndex = 1;
+        moi.classList.remove('an');
+        tren = moi; duoi = cu;
+        setTimeout(() => { cu.classList.add('an'); cu.pause(); }, 300);
+      }, 60);
+    };
+    moi.src = src;
+    try{ moi.currentTime = 0; }catch(e){}
+    moi.play().catch(() => {});
+  };
+}
+const CLIP_AI = ['bieu-cam/emoji_happy.mp4', 'bieu-cam/emoji_blink.mp4',
+                 'bieu-cam/emoji_wink_1.mp4', 'bieu-cam/emoji_laugh.mp4'];
+(function(){
+  const vc = $('#clip-cho');
+  if(vc){ vc.src = CLIP_CHO; vc.onerror = () => { vc.style.display = 'none'; }; }
+
+  /* Màn AI xáo vòng vài biểu cảm — đứng một hình suốt buổi trông như máy treo.
+     Hai lớp: clip này hết thì clip sau phát ngầm ở lớp dưới, phát được rồi mới hiện lên. */
+  const va = $('#clip-ai'), vb = $('#clip-ai-2');
+  if(va && vb){
+    let i = 0;
+    const doi = taoBoDoiMat(va, vb);
+    const ke = () => doi(CLIP_AI[i++ % CLIP_AI.length]);
+    va.onended = ke; vb.onended = ke;
+    ke();
+  }
+})();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MÀN CHÍNH BỐN Ô · GIẢI TRÍ · THÔNG TIN — anh Trường yêu cầu 24/09/2026
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Về màn chờ bằng tay — xoá dấu vết lượt trước y như lúc vắng người 5 phút.
+   Ở sảnh hành chính công đây là chuyện riêng tư, không chỉ gọn gàng. */
+function veManCho(){
+  ketThucPhien();
+  const oN = $('#o-nhap'); if(oN) oN.value = '';
+  hienLoiThoai('—', false);
+  ve('mh-cho');
+}
+
+function veHinhChucNang(){
+  $$('[data-hinh]').forEach(o => { o.innerHTML = icon(o.getAttribute('data-hinh'), 4.2); });
+  $$('[data-hinh-nho]').forEach(o => { o.innerHTML = MIC_SVG_NHO; });
+}
+const MIC_SVG_NHO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+  'stroke-linecap="round" style="width:1.4rem;height:1.4rem;display:block">' +
+  '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>';
+
+/* ══════════ DI CHUYỂN — về trạm sạc · du hành · về lễ tân (29/09/2026) ══════════
+   Mọi quyết định đi hay đứng nằm ở Kotlin (DiChuyen.kt). Lớp web chỉ: nhận mật khẩu, bấm bắt
+   đầu du hành, báo cú chạm thật, và hiện trạng thái Kotlin gửi lên qua window.baoDiChuyen. */
+
+/* Robot sắp tự đi — ve() đọc cờ này để KHÔNG ra lệnh xoay về hướng cũ. */
+let robotSapDi = false;
+
+/* ─── Về trạm sạc: bàn phím mật khẩu 4 số ─── */
+let matKhauGo = '';
+function moManSac(){
+  matKhauGo = ''; veOMatKhau();
+  $('#hop-mat-khau').hidden = false;
+  $('#sac-tieu-de').textContent = 'Đưa robot về trạm sạc';
+  $('#sac-mo-ta').innerHTML = 'Nhập đúng mật khẩu, robot sẽ tự đi về trạm sạc và cắm sạc.<br>' +
+                              'Khi pin yếu, robot tự về sạc mà không cần mật khẩu.';
+  capNhatPin();
+  ve('mh-sac');
+}
+function capNhatPin(){
+  let p = -1;
+  if(coCau() && CAU.pinHienTai) try{ p = CAU.pinHienTai(); }catch(e){}
+  $('#sac-pin').textContent = p >= 0 ? ('Pin hiện tại: ' + p + '%') : '';
+}
+function veOMatKhau(){
+  $$('#o-mat-khau i').forEach((o, k) => o.classList.toggle('co', k < matKhauGo.length));
+}
+function goSo(c){
+  if(c === 'xoa'){ matKhauGo = matKhauGo.slice(0, -1); veOMatKhau(); return; }
+  if(matKhauGo.length >= 4) return;
+  matKhauGo += c; veOMatKhau();
+  if(matKhauGo.length < 4) return;
+  let dung = false;
+  if(coCau() && CAU.veTramSac) try{ dung = CAU.veTramSac(matKhauGo); }catch(e){}
+  else dung = (matKhauGo === '4030');      /* chỉ để thử trên máy tính — robot kiểm ở Kotlin */
+  if(!dung){
+    const o = $('#o-mat-khau'); o.classList.remove('sai'); void o.offsetWidth; o.classList.add('sai');
+    setTimeout(() => { matKhauGo = ''; veOMatKhau(); }, 450);
+    return;
+  }
+  matKhauGo = '';
+  $('#hop-mat-khau').hidden = true;
+  $('#sac-tieu-de').textContent = 'Robot đang về trạm sạc…';
+  $('#sac-mo-ta').innerHTML = 'Anh chị vui lòng tránh đường giúp robot.';
+}
+(function dungBanPhimSo(){
+  const bp = $('#ban-phim-so'); if(!bp) return;
+  ['1','2','3','4','5','6','7','8','9','xoa','0',''].forEach(c => {
+    const b = document.createElement('button');
+    if(c === ''){ b.style.visibility = 'hidden'; }
+    else if(c === 'xoa'){ b.textContent = 'Xoá'; b.className = 'xoa-so'; b.onclick = () => goSo('xoa'); }
+    else { b.textContent = c; b.onclick = () => goSo(c); }
+    bp.appendChild(b);
+  });
+})();
+
+/* ─── Du hành ─── */
+function moManDuHanh(){
+  const l = $('#du-hanh-loi'); l.hidden = true; l.textContent = '';
+  ve('mh-du-hanh');
+}
+function batDauDuHanh(){
+  let loi = '';
+  if(coCau() && CAU.batDuHanh) try{ loi = CAU.batDuHanh(); }catch(e){ loi = 'Robot chưa sẵn sàng.'; }
+  if(loi){ const l = $('#du-hanh-loi'); l.textContent = loi; l.hidden = false; return; }
+  robotSapDi = true;
+  veManCho();
+  robotSapDi = false;
+  hienNhanDi('Robot đang du hành');
+}
+
+function hienNhanDi(chu){
+  const n = $('#nhan-di'); if(!n) return;
+  if(chu){ $('#nhan-di-chu').textContent = chu; n.hidden = false; }
+  else n.hidden = true;
+}
+
+/* Nút "Về màn chờ" (anh Trường yêu cầu 29/09): về màn chờ VÀ robot đi về điểm Le tan.
+   Kotlin tự bỏ qua nếu robot đang ở lễ tân rồi, hoặc đang sạc vì pin yếu. */
+function veManChoVaLeTan(){
+  robotSapDi = true;
+  veManCho();
+  robotSapDi = false;
+  if(coCau() && CAU.veLeTan) try{ CAU.veLeTan(); }catch(e){}
+}
+
+/* Ô "Đến điểm lễ tân" trên màn chính — cùng việc với nút "Về màn chờ". */
+function denDiemLeTan(){ veManChoVaLeTan(); }
+
+/* Kotlin gọi: robot sắp tự đi (về lễ tân / pin yếu) → về màn chờ, xoá dấu vết, không xoay về. */
+window.veManChoDeDi = function(){
+  if(manDang === 'mh-mua') return;       /* đang nhảy thì Kotlin đã không cho đi */
+  robotSapDi = true;
+  if(manDang !== 'mh-cho') veManCho();
+  robotSapDi = false;
+};
+
+/* Kotlin gọi mỗi khi chuyến đi đổi trạng thái. viec: NGHI · DU_HANH · VE_LE_TAN · VE_SAC. */
+window.baoDiChuyen = function(viec, trangThai, chu, pin, dangCam){
+  if(viec === 'DU_HANH') hienNhanDi('Robot đang du hành');
+  else if(viec === 'VE_LE_TAN') hienNhanDi('Robot đang về quầy lễ tân');
+  else if(viec === 'VE_SAC') hienNhanDi(chu === 'pin-yeu' ? 'Pin yếu — robot đang về sạc' : 'Robot đang về trạm sạc');
+  else hienNhanDi('');
+  if(manDang === 'mh-sac'){
+    if(viec === 'VE_SAC'){ $('#hop-mat-khau').hidden = true; $('#sac-tieu-de').textContent = 'Robot đang về trạm sạc…'; }
+    else if(trangThai === 'da-sac'){
+      $('#sac-tieu-de').textContent = 'Robot đã về trạm sạc';
+      $('#sac-mo-ta').innerHTML = 'Robot đang sạc pin và sẽ đứng yên ở trạm.<br>' +
+                                  'Lần sau có người dùng màn hình, robot mới ra lại quầy lễ tân.';
+    }
+    else if(trangThai === 'loi-sac'){
+      $('#sac-tieu-de').textContent = 'Chưa về được trạm sạc';
+      $('#sac-mo-ta').textContent = chu || 'Nhờ cán bộ kỹ thuật kiểm tra giúp.';
+      $('#hop-mat-khau').hidden = false;
+    }
+    if(pin >= 0) $('#sac-pin').textContent = 'Pin hiện tại: ' + pin + '%' + (dangCam ? ' · đang sạc' : '');
+  }
+};
+
+/* ─────────── NHẢY MÚA — KHỚP PHÁCH NHẠC (24/09/2026) ───────────
+   Nhạc nhac/mua.mp3 (anh Trường gửi). Bảng phách VU_DAO do tools/do-nhip-nhac.py ĐO từ
+   chính tệp nhạc rồi ghi thẳng vào khối dưới — ĐỪNG sửa tay, đổi bài là chạy lại script.
+
+   Ai giữ nhịp: LỚP WEB, theo audio.currentTime. Bản đầu để Kotlin tự đếm 492 ms/phách từ
+   lúc bấm nút: nhạc nạp chậm nửa giây là cả bài lệch phách, vì hai đồng hồ không biết nhau.
+   Nay mỗi phách đến giờ (tính trên CHÍNH bài nhạc đang phát) thì mới bắn động tác.
+
+   ⚠ ĐO TRÊN ROBOT 24/09/2026 — mỗi lệnh xoay mất TỐI THIỂU ~0,6 giây dù góc nhỏ (tăng tốc +
+     hãm): 6° 0,61–0,70 s · 10° 0,78–0,80 s · 18° 0,95–1,08 s · 25° 1,10–1,19 s. Gật đầu gửi
+     cách một phách thì lệnh sau CẮT lệnh trước ("interrupt by other turn head").
+     Một phách bài này = 0,46 s → KHÔNG lắc hay gật mỗi phách được. Bản đầu làm thế: sáu lệnh
+     lắc dồn ứ, không lệnh nào xong (anh Trường báo robot không lắc theo nhạc).
+   Nên: THÂN ở phách 1 và 3, ĐẦU ở phách 2 và 4 — mỗi bộ phận cách nhau 2 phách (0,92 s),
+   hai bộ phận thay phiên nên nhìn tổng thể robot vẫn động MỌI phách.
+     nhẹ   : chỉ gật đầu (phách 2 lên, phách 4 xuống)
+     vừa   : lắc thân 7°  (phách 1 trái, phách 3 phải)
+     mạnh  : lắc thân 10° (phách 1 trái, phách 3 phải) + gật đầu (phách 2, 4)
+   Mọi ô đều ĐỐI XỨNG (tổng góc = 0) để robot đứng lại đúng hướng.
+   Biểu cảm đổi theo mức ở đầu mỗi ô; mặt robot nhún mỗi phách (phách mạnh nhún sâu hơn). */
+/*__BAT_DAU_VU_DAO__*/
+const VU_DAO = {"tep":"mua.mp3","dai":34.978,"bpm":129.2,"pha":0,"p":[[0.07,1,0.013],[0.534,0,0.013],[0.998,0,0.062],[1.463,0,0.092],[1.881,1,0.1],[2.345,0,0.194],[2.81,0,0.171],[3.274,0,0.208],[3.738,1,0.325],[4.203,0,0.231],[4.667,0,0.205],[5.132,0,0.312],[5.619,1,0.358],[6.06,0,0.576],[6.525,0,0.767],[6.989,0,0.829],[7.454,1,0.835],[7.918,0,0.701],[8.382,0,0.661],[8.847,0,0.663],[9.311,1,0.655],[9.776,0,0.663],[10.24,0,0.665],[10.704,0,0.665],[11.146,1,0.693],[11.61,0,0.665],[12.074,0,0.644],[12.539,0,0.633],[13.003,1,0.62],[13.468,0,0.666],[13.932,0,0.704],[14.396,0,0.715],[14.838,1,0.725],[15.302,0,0.706],[15.766,0,0.579],[16.231,0,0.532],[16.695,1,0.525],[17.16,0,0.548],[17.624,0,0.663],[18.088,0,0.687],[18.53,1,0.546],[18.994,0,0.434],[19.458,0,0.275],[19.923,0,0.257],[20.387,1,0.375],[20.852,0,0.531],[21.316,0,0.683],[21.78,0,0.711],[22.245,1,0.716],[22.686,0,0.649],[23.15,0,0.587],[23.615,0,0.537],[24.079,1,0.549],[24.543,0,0.578],[25.008,0,0.664],[25.472,0,0.727],[25.913,1,0.751],[26.378,0,0.757],[26.842,0,0.732],[27.307,0,0.714],[27.771,1,0.693],[28.235,0,0.725],[28.7,0,0.709],[29.141,0,0.713],[29.582,1,0.734],[30.023,0,0.689],[30.534,0,0.662],[30.999,0,0.637],[31.463,1,0.611],[31.927,0,0.654],[32.392,0,0.722],[32.856,0,0.761],[33.297,1,0.653],[33.762,0,0.501],[34.226,0,0.324],[34.691,0,0.074]]};
+/*__HET_VU_DAO__*/
+const DI_TRUOC_GIAY = 0.06;     // bắn lệnh sớm chừng này cho động cơ kịp vào đúng phách
+const BO_PHACH_CU_GIAY = 0.25;  // trang giật mà lỡ phách quá mức này thì bỏ, không dồn lệnh
+const MAT_THEO_MUC = [
+  ['bieu-cam/emoji_blink.mp4', 'bieu-cam/emoji_happy.mp4'],
+  ['bieu-cam/emoji_happy.mp4', 'bieu-cam/emoji_wink_1.mp4'],
+  ['bieu-cam/emoji_laugh.mp4', 'bieu-cam/emoji_wink_2.mp4', 'bieu-cam/emoji_laugh.mp4', 'bieu-cam/emoji_wink_3.mp4'],
+];
+let dangNhay = false, vongNhay = null, phachKe = 0, mucO = 0, gocO = 18, t0Nhay = 0;
+let henNhun = null;
+
+function vaoManMua(){
+  doiMatSang('bieu-cam/emoji_happy.mp4');
+  const a = $('#nhac-mua');
+  if(a && !a.src) a.src = 'nhac/mua.mp3';
+  $('#mua-dang').hidden = true;
+  $('#mua-chuan-bi').hidden = false;
+  ve('mh-mua');
+}
+
+/* Đổi biểu cảm: dùng chung bộ đổi mặt hai lớp (taoBoDoiMat) — không lộ nút ▶ của WebView. */
+let doiMatMua = null;
+function doiMatSang(src){
+  if(!doiMatMua) doiMatMua = taoBoDoiMat($('#clip-mua'), $('#clip-mua-2'));
+  doiMatMua(src);
+}
+
+function mucNangLuong(nl){ return nl < 0.35 ? 0 : nl < 0.65 ? 1 : 2; }
+
+/** Động tác của phách thứ i — trả danh sách mã gửi xuống NhayMua.kt. */
+function dongTacCuaPhach(i){
+  const p = VU_DAO.p[i];
+  const k = ((i - VU_DAO.pha) % 4 + 4) % 4;        // vị trí trong ô nhịp, 0 = phách mạnh
+  const o = Math.floor((i - VU_DAO.pha) / 4);       // số ô nhịp
+  if(i < VU_DAO.pha) return [];                     // nửa ô lẻ đầu bài: đứng yên
+  if(k === 0){
+    mucO = mucNangLuong(p[2]);
+    gocO = mucO === 2 ? 10 : 7;                     // đo 24/09: 12° mất 0,97–1,3 s, quá sát 2 phách (0,92 s)
+    const ds = MAT_THEO_MUC[mucO];
+    doiMatSang(ds[o % ds.length]);
+  }
+  const L = 'L' + gocO, R = 'R' + gocO;
+  // THÂN luôn ở phách 1·3 (k 0·2), ĐẦU luôn ở phách 2·4 (k 1·3) — ở MỌI mức, để lúc chuyển
+  // mức giữa hai ô cũng không có hai lệnh cùng bộ phận sát nhau một phách.
+  if(mucO === 0) return [[], ['U'], [], ['D']][k];
+  if(mucO === 1) return [[L], [], [R], []][k];
+  return [[L], ['U'], [R], ['D']][k];
+}
+
+function nhun(manh){
+  const o = $('#lop-mat'); if(!o) return;
+  o.classList.remove('nhun', 'nhun-nhe');
+  void o.offsetWidth;
+  o.classList.add(manh ? 'nhun' : 'nhun-nhe');
+  clearTimeout(henNhun);
+  henNhun = setTimeout(() => o.classList.remove('nhun', 'nhun-nhe'), 120);
+}
+
+/** Đồng hồ của điệu múa = vị trí đang phát của bài nhạc. Nhạc không phát được thì mới
+    rơi về đồng hồ trang — robot vẫn múa đúng nhịp đã đo, chỉ là không có tiếng. */
+function gioNhay(){
+  const a = $('#nhac-mua');
+  if(a && !a.paused && a.currentTime > 0) return a.currentTime;
+  return (performance.now() - t0Nhay) / 1000;
+}
+
+function batDauNhay(){
+  thaoTac();
+  const a = $('#nhac-mua');
+  try{ a.currentTime = 0; a.volume = 1; a.play().catch(() => {}); }catch(e){}
+  dangNhay = true; phachKe = 0; mucO = 0; t0Nhay = performance.now();
+  $('#mua-chuan-bi').hidden = true;
+  $('#mua-dang').hidden = false;
+  if(coCau() && CAU.batNhay) try{ CAU.batNhay(Math.ceil(VU_DAO.dai)); }catch(e){}
+  clearInterval(vongNhay);
+  vongNhay = setInterval(nhipNhay, 10);
+}
+
+function nhipNhay(){
+  if(!dangNhay) return;
+  const t = gioNhay();
+  while(phachKe < VU_DAO.p.length && VU_DAO.p[phachKe][0] - DI_TRUOC_GIAY <= t){
+    const i = phachKe++;
+    const ds = dongTacCuaPhach(i);                  // luôn tính — để giữ đúng trạng thái ô nhịp
+    if(t - VU_DAO.p[i][0] > BO_PHACH_CU_GIAY) continue;
+    if(coCau() && CAU.dongTac) ds.forEach(ma => { try{ CAU.dongTac(ma); }catch(e){} });
+    nhun(VU_DAO.p[i][1]);
+  }
+  const a = $('#nhac-mua');
+  if(t >= VU_DAO.dai + 0.2 || (a && a.ended)) dungNhay(true, false);
+}
+
+/** het = hết bài (robot cảm ơn) · batLai = bật lại xoay theo người sau khi dừng. */
+function dungNhay(het, batLai){
+  if(!dangNhay) return;
+  dangNhay = false;
+  clearInterval(vongNhay);
+  try{ $('#nhac-mua').pause(); }catch(e){}
+  if(coCau() && CAU.dungNhay) try{ CAU.dungNhay(!!batLai); }catch(e){}
+  $('#mua-dang').hidden = true;
+  $('#mua-chuan-bi').hidden = false;
+  if(het) doc('Cảm ơn anh chị đã xem tôi nhảy ạ!');
+}
+
+/* ─────────── ĐỐ VUI THỦ TỤC ───────────
+   KHÔNG có câu hỏi nào viết tay. Mọi câu sinh từ CHÍNH dữ liệu thủ tục đã nạp
+   (D.nap_truoc): đáp án đúng là giấy tờ nằm trong danh sách "Giấy tờ cần chuẩn bị" của
+   thủ tục đó; đáp án nhiễu là giấy tờ của thủ tục KHÁC và phải KHÔNG xuất hiện ở bất kỳ
+   đâu trong nội dung thủ tục đang hỏi — không thì một đáp án "sai" lại hoá ra đúng. */
+const SO_CAU_DO = 5;
+let vongDo = null;
+
+function khoThuTucDo(){
+  const ds = [], daCo = new Set();
+  Object.keys(D.nap_truoc || {}).forEach(k => {
+    const m = D.nap_truoc[k];
+    if(!m || !m.dap || /\{\{/.test(m.dap)) return;
+    const ten = ((m.dap.match(/Tra cứu thủ tục:\s*([^\n*]+)/i) || [])[1] || '').trim();
+    if(!ten || daCo.has(ten)) return;
+    const khoi = m.dap.split(/\n\s*---|\*\*Các bước|\*\*Trường hợp/)[0];
+    const gt = [];
+    khoi.replace(/^\s*\d+\.\s*\*\*([^*]{4,70})\*\*/gm, (x, g) => { gt.push(g.trim().replace(/[:：]$/, '')); return x; });
+    if(!gt.length) return;
+    daCo.add(ten);
+    ds.push({ ten: ten, gt: gt, chu: khongDau(m.dap) });
+  });
+  return ds;
+}
+
+function coTrong(t, giayTo){ return t.chu.indexOf(khongDau(giayTo).slice(0, 20)) >= 0; }
+function tron(a){ a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); const x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+
+function sinhCauDo(){
+  const tt = khoThuTucDo();
+  const moiGt = Array.from(new Set([].concat.apply([], tt.map(t => t.gt))));
+  const cau = [];
+  tt.forEach(t => {
+    // Kiểu 1: thủ tục → giấy tờ
+    const dung1 = t.gt[Math.floor(Math.random() * t.gt.length)];
+    const nhieu1 = tron(moiGt.filter(g => !coTrong(t, g))).slice(0, 3);
+    if(nhieu1.length === 3)
+      cau.push({ hoi: 'Làm thủ tục “' + t.ten + '”, anh chị cần chuẩn bị giấy tờ nào dưới đây?',
+                 dung: dung1, dap: tron([dung1].concat(nhieu1)) });
+    // Kiểu 2: giấy tờ → thủ tục
+    const g2 = t.gt[0];
+    const khac = tron(tt.filter(x => x !== t && !coTrong(x, g2)).map(x => x.ten)).slice(0, 3);
+    if(khac.length === 3)
+      cau.push({ hoi: '“' + g2 + '” là giấy tờ cần cho thủ tục nào?',
+                 dung: t.ten, dap: tron([t.ten].concat(khac)) });
+  });
+  return tron(cau);
+}
+
+function batDauDoVui(){
+  const ds = sinhCauDo();
+  if(!ds.length){ doc('Tôi chưa có dữ liệu để ra câu đố ạ.'); return; }
+  vongDo = { ds: ds.slice(0, SO_CAU_DO), i: 0, diem: 0, daTraLoi: false };
+  ve('mh-do');
+  hienCauDo();
+}
+
+function dungVongDo(){ /* rời màn đố: giữ nguyên điểm, lần sau chơi lượt mới */ }
+
+function hienCauDo(){
+  const v = vongDo; if(!v) return;
+  const c = v.ds[v.i];
+  v.daTraLoi = false;
+  $('#do-tien-do').textContent = 'Câu ' + (v.i + 1) + '/' + v.ds.length + ' · Đúng ' + v.diem;
+  $('#cau-do').textContent = c.hoi;
+  $('#ket-do').textContent = '';
+  $('#nut-tiep-do').hidden = true;
+  const l = $('#luoi-dap-do'); l.innerHTML = ''; l.style.display = '';
+  c.dap.forEach((d, k) => {
+    const b = document.createElement('button');
+    b.innerHTML = '<span class="chu-cai"></span><span></span>';
+    b.querySelector('.chu-cai').textContent = 'ABCD'[k];
+    b.querySelector('span:last-child').textContent = d;
+    b.onclick = () => chonDapDo(b, d);
+    l.appendChild(b);
+  });
+  docCauDo();
+}
+
+function docCauDo(){
+  const v = vongDo; if(!v || !v.ds[v.i]) return;
+  const c = v.ds[v.i];
+  doc(c.hoi + ' ' + c.dap.map((d, k) => 'ABCD'[k] + ': ' + d).join('. ') + '.');
+}
+
+function chonDapDo(nut, d){
+  const v = vongDo; if(!v || v.daTraLoi) return;
+  thaoTac();
+  v.daTraLoi = true;
+  const c = v.ds[v.i];
+  const trung = d === c.dung;
+  if(trung) v.diem++;
+  $$('#luoi-dap-do button').forEach(b => {
+    const chu = b.querySelector('span:last-child').textContent;
+    b.classList.add(chu === c.dung ? 'dung' : 'sai');
+  });
+  $('#ket-do').textContent = trung ? 'Chính xác! 🎉' : 'Chưa đúng — đáp án là: ' + c.dung;
+  $('#do-tien-do').textContent = 'Câu ' + (v.i + 1) + '/' + v.ds.length + ' · Đúng ' + v.diem;
+  const cuoi = v.i === v.ds.length - 1;
+  $('#nut-tiep-do').textContent = cuoi ? 'Xem kết quả ›' : 'Câu tiếp theo ›';
+  $('#nut-tiep-do').hidden = false;
+  doc(trung ? 'Chính xác! Anh chị giỏi quá.' : 'Chưa đúng rồi ạ. Đáp án là ' + c.dung + '.');
+}
+
+function cauDoTiep(){
+  const v = vongDo; if(!v) return;
+  thaoTac();
+  if(v.i < v.ds.length - 1){ v.i++; hienCauDo(); return; }
+  const tong = v.ds.length;
+  $('#cau-do').textContent = 'Anh chị trả lời đúng ' + v.diem + '/' + tong + ' câu!';
+  $('#luoi-dap-do').innerHTML = ''; $('#luoi-dap-do').style.display = 'none';
+  $('#ket-do').textContent = v.diem === tong ? 'Xuất sắc — anh chị nắm thủ tục rất chắc!' :
+                             v.diem >= Math.ceil(tong / 2) ? 'Rất tốt!' : 'Chơi lại để nhớ thêm nhé!';
+  $('#nut-tiep-do').textContent = 'Chơi lượt mới ›';
+  $('#nut-tiep-do').hidden = false;
+  $('#nut-tiep-do').onclick = () => { $('#nut-tiep-do').onclick = cauDoTiep; batDauDoVui(); };
+  doc('Anh chị trả lời đúng ' + v.diem + ' trên ' + tong + ' câu. ' + $('#ket-do').textContent);
+}
+
+/* ─────────── THÔNG TIN TRUNG TÂM ───────────
+   KHÔNG có dữ liệu nào viết cứng ở đây. MainActivity ghép files/thong-tin/thong-tin.json
+   trên thẻ nhớ vào window.THONG_TIN, và đường dẫn thư mục ảnh vào window.THU_MUC_THONG_TIN.
+   Chưa có tệp thì màn hình nói thẳng là đang cập nhật — không bịa tên cán bộ nào.
+   Khuôn tệp: du-lieu/thong-tin-mau.json. */
+let tabTT = 'cb';
+function duongTT(tep){
+  if(!tep) return '';
+  if(/^(https?:|file:|data:)/.test(tep)) return tep;
+  return (window.THU_MUC_THONG_TIN || 'thong-tin/') + tep;
+}
+
+function veThongTin(){
+  const T = window.THONG_TIN || {};
+  $('#tt-phu').textContent = T.ten_don_vi || D.don_vi || '';
+  moTabTT(tabTT);
+}
+
+function moTabTT(tab){
+  tabTT = tab;
+  $('#tab-cb').classList.toggle('chon', tab === 'cb');
+  $('#tab-gt').classList.toggle('chon', tab === 'gt');
+  const T = window.THONG_TIN || {};
+  const o = $('#tt-noi-dung');
+  o.innerHTML = '';
+  if(tab === 'cb'){
+    /* Chỉ hiện người ĐÃ CÓ ẢNH (anh Trường yêu cầu 29/09/2026). Dữ liệu vẫn giữ đủ danh sách
+       theo Thông báo 16/TB-PVHCC — Trung tâm gửi thêm ảnh là người đó tự hiện. */
+    /* Xếp theo SỐ QUẦY tăng dần (anh Trường yêu cầu 29/09/2026); người không có quầy đứng
+       sau, cùng quầy thì giữ thứ tự trong thông báo (sort của JS ổn định). */
+    const soQuay = cb => cb.quay > 0 ? cb.quay : 999;
+    const ds = (T.can_bo || []).filter(cb => cb.anh).sort((a, b) => soQuay(a) - soQuay(b));
+    if(!ds.length){ o.innerHTML = '<div class="dang-cap-nhat"><b>Đang cập nhật</b>' +
+      'Trung tâm đang bổ sung thông tin cán bộ. Anh chị cần gặp ai, vui lòng hỏi quầy hướng dẫn.</div>'; return; }
+    const l = document.createElement('div'); l.className = 'luoi-can-bo';
+    ds.forEach(cb => {
+      const t = document.createElement('div'); t.className = 'the-can-bo';
+      t.innerHTML = '<div class="anh"></div><div class="chu"><b></b><span></span><p></p></div>';
+      const chuDau = (cb.ten || '?').trim().split(/\s+/).pop().charAt(0).toUpperCase();
+      const anh = t.querySelector('.anh');
+      if(cb.anh){
+        const im = document.createElement('img');
+        im.src = duongTT(cb.anh);
+        im.onerror = () => { anh.textContent = chuDau; };
+        anh.appendChild(im);
+      } else anh.textContent = chuDau;
+      t.querySelector('b').textContent = cb.ten || '';
+      t.querySelector('span').textContent = cb.chuc_vu || '';
+      t.querySelector('p').textContent = cb.mo_ta || '';
+      /* Bấm thẻ → robot đọc lời giới thiệu người đó (câu dựng sẵn ở trường "doc"). */
+      const nghe = document.createElement('div'); nghe.className = 'nghe';
+      nghe.textContent = '🔊 Chạm để nghe giới thiệu';
+      t.querySelector('.chu').appendChild(nghe);
+      t.onclick = () => {
+        $$('#tt-noi-dung .the-can-bo').forEach(x => x.classList.toggle('dang-doc', x === t));
+        doc(cb.doc || [cb.ten, cb.chuc_vu, cb.mo_ta].filter(Boolean).join('. '));
+      };
+      l.appendChild(t);
+    });
+    o.appendChild(l);
+    return;
+  }
+  // Giới thiệu Trung tâm
+  const g = T.gioi_thieu || {};
+  const media = g.media || [];
+  const doan = [].concat(g.doan || []);
+  if(!media.length && !doan.length){ o.innerHTML = '<div class="dang-cap-nhat"><b>Đang cập nhật</b>' +
+    'Trung tâm đang bổ sung hình ảnh và video giới thiệu.</div>'; return; }
+  const k = document.createElement('div'); k.className = 'gioi-thieu';
+  const trai = document.createElement('div');
+  const khung = document.createElement('div'); khung.className = 'khung-media';
+  trai.appendChild(khung);
+  const dai = document.createElement('div'); dai.className = 'dai-anh';
+  const chieu = i => {
+    const m = media[i]; if(!m) return;
+    khung.innerHTML = '';
+    let el;
+    if(m.loai === 'video'){ el = document.createElement('video'); el.controls = true; el.playsInline = true; }
+    else el = document.createElement('img');
+    el.src = duongTT(m.tep);
+    khung.appendChild(el);
+    $$('#tt-noi-dung .dai-anh button').forEach((b, j) => b.classList.toggle('chon', j === i));
+  };
+  media.forEach((m, i) => {
+    const b = document.createElement('button');
+    if(m.loai === 'video') b.textContent = '▶';
+    else { const im = document.createElement('img'); im.src = duongTT(m.tep); b.appendChild(im); }
+    b.onclick = () => { thaoTac(); chieu(i); };
+    dai.appendChild(b);
+  });
+  if(media.length > 1) trai.appendChild(dai);
+  if(!media.length) khung.style.display = 'none';
+  const phai = document.createElement('div'); phai.className = 'chu-gioi-thieu';
+  const h = document.createElement('h2'); h.textContent = g.tieu_de || (T.ten_don_vi || D.don_vi || ''); phai.appendChild(h);
+  doan.forEach(x => { const p = document.createElement('p'); p.textContent = x; phai.appendChild(p); });
+  k.appendChild(trai); k.appendChild(phai);
+  o.appendChild(k);
+  if(media.length) chieu(0);
+}
+
+/* ─────────── Khởi động ─────────── */
+/* Kính lúp trong ô hỏi — cũng đơn sắc, cùng bộ nét với các hình kia */
+(function(){
+  const o = $('#kinh-tim');
+  if(o) o.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+    'stroke-width="2.2" stroke-linecap="round" style="width:2rem;height:2rem;display:block">' +
+    '<circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg>';
+})();
+
+/* In khung thật ra console một lần lúc khởi động. Logcat của app bắt console nên
+   dòng này hiện trong "adb logcat -s HccWeb". Cố ý KHÔNG nhét vào mô tả màn hình gửi
+   cho mô hình — đó là chỗ để nói robot đang hiện gì, không phải chỗ ghi số đo. */
+console.log('KHUNG ' + khungThat());
+
+veManChinh();
+veHinhChucNang();
+(function(){ const o = $('#nut-mic-chinh'); if(o) o.innerHTML = MIC_SVG; })();
+capNhatNutMic();
+if(coCau() && CAU.moTaManHinh) try{ CAU.moTaManHinh(moTaManHinh()); }catch(e){}
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+{
+  "_nguon": "Thông báo số 16/TB-PVHCC ngày 03/08/2026 của TT PVHCC xã Tây Hòa + ảnh Trung tâm gửi 29/09/2026. Sinh bằng tools/dung-thong-tin.py — đừng sửa tay.",
+  "ten_don_vi": "Trung tâm Phục vụ Hành chính công xã Tây Hòa",
+  "can_bo": [
+    {
+      "ten": "Võ Thị Hạnh",
+      "gioi_tinh": "Nữ",
+      "chuc_vu": "Giám đốc Trung tâm",
+      "mo_ta": "Quản lý chung hoạt động của Trung tâm Phục vụ hành chính công xã.",
+      "doc": "Đây là chị Võ Thị Hạnh, giám đốc Trung tâm. Chị Hạnh quản lý chung hoạt động của Trung tâm Phục vụ hành chính công xã."
+    },
+    {
+      "ten": "Lê Hồng Phong",
+      "gioi_tinh": "Nam",
+      "chuc_vu": "Phó Giám đốc Trung tâm",
+      "mo_ta": "Tham mưu Giám đốc quản lý chung hoạt động của Trung tâm · ký hồ sơ lĩnh vực Chứng thực.",
+      "doc": "Đây là anh Lê Hồng Phong, phó Giám đốc Trung tâm. Anh Phong tham mưu Giám đốc quản lý chung hoạt động của Trung tâm, ký hồ sơ lĩnh vực Chứng thực."
+    },
+    {
+      "ten": "Lê Thị Đỗ Quyên",
+      "gioi_tinh": "Nữ",
+      "chuc_vu": "Phó Giám đốc Trung tâm",
+      "mo_ta": "Tham mưu Giám đốc quản lý chung hoạt động của Trung tâm · ký hồ sơ lĩnh vực Chứng thực.",
+      "doc": "Đây là chị Lê Thị Đỗ Quyên, phó Giám đốc Trung tâm. Chị Quyên tham mưu Giám đốc quản lý chung hoạt động của Trung tâm, ký hồ sơ lĩnh vực Chứng thực."
+    },
+    {
+      "ten": "Võ Tấn Đạt",
+      "gioi_tinh": "Nam",
+      "chuc_vu": "Chuyên viên",
+      "mo_ta": "Phụ trách kiểm soát thủ tục hành chính · theo dõi niêm yết công khai thủ tục và việc giải quyết thủ tục trên địa bàn xã.",
+      "doc": "Đây là anh Võ Tấn Đạt, chuyên viên. Anh Đạt phụ trách kiểm soát thủ tục hành chính, theo dõi niêm yết công khai thủ tục và việc giải quyết thủ tục trên địa bàn xã."
+    },
+    {
+      "ten": "Trần Thị Bích Tiền",
+      "gioi_tinh": "Nữ",
+      "chuc_vu": "Chuyên viên",
+      "mo_ta": "Thực hiện công tác kế toán Trung tâm · hướng dẫn công dân nộp phí, lệ phí thủ tục hành chính.",
+      "doc": "Đây là chị Trần Thị Bích Tiền, chuyên viên. Chị Tiền thực hiện công tác kế toán Trung tâm, hướng dẫn công dân nộp phí, lệ phí thủ tục hành chính."
+    },
+    {
+      "ten": "Trần Thị Hồng",
+      "gioi_tinh": "Nữ",
+      "chuc_vu": "Chuyên viên · Quầy 05",
+      "mo_ta": "Tiếp nhận hồ sơ lĩnh vực của Phòng Văn hóa – Xã hội.",
+      "doc": "Đây là chị Trần Thị Hồng, chuyên viên, làm việc tại quầy số năm. Chị Hồng tiếp nhận hồ sơ lĩnh vực của Phòng Văn hóa, Xã hội.",
+      "quay": 5,
+      "anh": "can-bo/tran-thi-hong.jpg"
+    },
+    {
+      "ten": "Lê Kim Đính",
+      "gioi_tinh": "Nam",
+      "chuc_vu": "Chuyên viên · Quầy 01",
+      "mo_ta": "Tiếp nhận, xử lý hồ sơ lĩnh vực Hộ tịch.",
+      "doc": "Đây là anh Lê Kim Đính, chuyên viên, làm việc tại quầy số một. Anh Đính tiếp nhận, xử lý hồ sơ lĩnh vực Hộ tịch.",
+      "quay": 1,
+      "anh": "can-bo/le-kim-dinh.jpg"
+    },
+    {
+      "ten": "Nguyễn Trần Hoài Mơ",
+      "gioi_tinh": "Nữ",
+      "chuc_vu": "Chuyên viên · Quầy 03",
+      "mo_ta": "Tiếp nhận, xử lý hồ sơ lĩnh vực Chứng thực.",
+      "doc": "Đây là chị Nguyễn Trần Hoài Mơ, chuyên viên, làm việc tại quầy số ba. Chị Mơ tiếp nhận, xử lý hồ sơ lĩnh vực Chứng thực.",
+      "quay": 3,
+      "anh": "can-bo/nguyen-tran-hoai-mo.jpg"
+    },
+    {
+      "ten": "Nguyễn Ngọc Tính",
+      "gioi_tinh": "Nam",
+      "chuc_vu": "Chuyên viên · Quầy 04",
+      "mo_ta": "Tiếp nhận, xử lý hồ sơ lĩnh vực Chứng thực.",
+      "doc": "Đây là anh Nguyễn Ngọc Tính, chuyên viên, làm việc tại quầy số bốn. Anh Tính tiếp nhận, xử lý hồ sơ lĩnh vực Chứng thực.",
+      "quay": 4,
+      "anh": "can-bo/nguyen-ngoc-tinh.jpg"
+    },
+    {
+      "ten": "Trần Minh Tiếng",
+      "gioi_tinh": "Nam",
+      "chuc_vu": "Chuyên viên · Quầy 02",
+      "mo_ta": "Tiếp nhận, xử lý hồ sơ kinh doanh, công thương, đất đai, xây dựng, quy hoạch, khoáng sản… (lĩnh vực Phòng Kinh tế).",
+      "doc": "Đây là anh Trần Minh Tiếng, chuyên viên, làm việc tại quầy số hai. Anh Tiếng tiếp nhận, xử lý hồ sơ kinh doanh, công thương, đất đai, xây dựng, quy hoạch, khoáng sản, lĩnh vực Phòng Kinh tế.",
+      "quay": 2,
+      "anh": "can-bo/tran-minh-tieng.jpg"
+    }
+  ],
+  "gioi_thieu": {}
+}

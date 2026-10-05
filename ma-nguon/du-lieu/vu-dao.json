@@ -1,0 +1,389 @@
+{
+ "tep": "mua.mp3",
+ "dai_giay": 34.978,
+ "bpm": 129.2,
+ "do_ro_nhip": 0.748,
+ "pha_phach_manh": 0,
+ "phach": [
+  {
+   "t": 0.07,
+   "manh": true,
+   "nang_luong": 0.013
+  },
+  {
+   "t": 0.534,
+   "manh": false,
+   "nang_luong": 0.013
+  },
+  {
+   "t": 0.998,
+   "manh": false,
+   "nang_luong": 0.062
+  },
+  {
+   "t": 1.463,
+   "manh": false,
+   "nang_luong": 0.092
+  },
+  {
+   "t": 1.881,
+   "manh": true,
+   "nang_luong": 0.1
+  },
+  {
+   "t": 2.345,
+   "manh": false,
+   "nang_luong": 0.194
+  },
+  {
+   "t": 2.81,
+   "manh": false,
+   "nang_luong": 0.171
+  },
+  {
+   "t": 3.274,
+   "manh": false,
+   "nang_luong": 0.208
+  },
+  {
+   "t": 3.738,
+   "manh": true,
+   "nang_luong": 0.325
+  },
+  {
+   "t": 4.203,
+   "manh": false,
+   "nang_luong": 0.231
+  },
+  {
+   "t": 4.667,
+   "manh": false,
+   "nang_luong": 0.205
+  },
+  {
+   "t": 5.132,
+   "manh": false,
+   "nang_luong": 0.312
+  },
+  {
+   "t": 5.619,
+   "manh": true,
+   "nang_luong": 0.358
+  },
+  {
+   "t": 6.06,
+   "manh": false,
+   "nang_luong": 0.576
+  },
+  {
+   "t": 6.525,
+   "manh": false,
+   "nang_luong": 0.767
+  },
+  {
+   "t": 6.989,
+   "manh": false,
+   "nang_luong": 0.829
+  },
+  {
+   "t": 7.454,
+   "manh": true,
+   "nang_luong": 0.835
+  },
+  {
+   "t": 7.918,
+   "manh": false,
+   "nang_luong": 0.701
+  },
+  {
+   "t": 8.382,
+   "manh": false,
+   "nang_luong": 0.661
+  },
+  {
+   "t": 8.847,
+   "manh": false,
+   "nang_luong": 0.663
+  },
+  {
+   "t": 9.311,
+   "manh": true,
+   "nang_luong": 0.655
+  },
+  {
+   "t": 9.776,
+   "manh": false,
+   "nang_luong": 0.663
+  },
+  {
+   "t": 10.24,
+   "manh": false,
+   "nang_luong": 0.665
+  },
+  {
+   "t": 10.704,
+   "manh": false,
+   "nang_luong": 0.665
+  },
+  {
+   "t": 11.146,
+   "manh": true,
+   "nang_luong": 0.693
+  },
+  {
+   "t": 11.61,
+   "manh": false,
+   "nang_luong": 0.665
+  },
+  {
+   "t": 12.074,
+   "manh": false,
+   "nang_luong": 0.644
+  },
+  {
+   "t": 12.539,
+   "manh": false,
+   "nang_luong": 0.633
+  },
+  {
+   "t": 13.003,
+   "manh": true,
+   "nang_luong": 0.62
+  },
+  {
+   "t": 13.468,
+   "manh": false,
+   "nang_luong": 0.666
+  },
+  {
+   "t": 13.932,
+   "manh": false,
+   "nang_luong": 0.704
+  },
+  {
+   "t": 14.396,
+   "manh": false,
+   "nang_luong": 0.715
+  },
+  {
+   "t": 14.838,
+   "manh": true,
+   "nang_luong": 0.725
+  },
+  {
+   "t": 15.302,
+   "manh": false,
+   "nang_luong": 0.706
+  },
+  {
+   "t": 15.766,
+   "manh": false,
+   "nang_luong": 0.579
+  },
+  {
+   "t": 16.231,
+   "manh": false,
+   "nang_luong": 0.532
+  },
+  {
+   "t": 16.695,
+   "manh": true,
+   "nang_luong": 0.525
+  },
+  {
+   "t": 17.16,
+   "manh": false,
+   "nang_luong": 0.548
+  },
+  {
+   "t": 17.624,
+   "manh": false,
+   "nang_luong": 0.663
+  },
+  {
+   "t": 18.088,
+   "manh": false,
+   "nang_luong": 0.687
+  },
+  {
+   "t": 18.53,
+   "manh": true,
+   "nang_luong": 0.546
+  },
+  {
+   "t": 18.994,
+   "manh": false,
+   "nang_luong": 0.434
+  },
+  {
+   "t": 19.458,
+   "manh": false,
+   "nang_luong": 0.275
+  },
+  {
+   "t": 19.923,
+   "manh": false,
+   "nang_luong": 0.257
+  },
+  {
+   "t": 20.387,
+   "manh": true,
+   "nang_luong": 0.375
+  },
+  {
+   "t": 20.852,
+   "manh": false,
+   "nang_luong": 0.531
+  },
+  {
+   "t": 21.316,
+   "manh": false,
+   "nang_luong": 0.683
+  },
+  {
+   "t": 21.78,
+   "manh": false,
+   "nang_luong": 0.711
+  },
+  {
+   "t": 22.245,
+   "manh": true,
+   "nang_luong": 0.716
+  },
+  {
+   "t": 22.686,
+   "manh": false,
+   "nang_luong": 0.649
+  },
+  {
+   "t": 23.15,
+   "manh": false,
+   "nang_luong": 0.587
+  },
+  {
+   "t": 23.615,
+   "manh": false,
+   "nang_luong": 0.537
+  },
+  {
+   "t": 24.079,
+   "manh": true,
+   "nang_luong": 0.549
+  },
+  {
+   "t": 24.543,
+   "manh": false,
+   "nang_luong": 0.578
+  },
+  {
+   "t": 25.008,
+   "manh": false,
+   "nang_luong": 0.664
+  },
+  {
+   "t": 25.472,
+   "manh": false,
+   "nang_luong": 0.727
+  },
+  {
+   "t": 25.913,
+   "manh": true,
+   "nang_luong": 0.751
+  },
+  {
+   "t": 26.378,
+   "manh": false,
+   "nang_luong": 0.757
+  },
+  {
+   "t": 26.842,
+   "manh": false,
+   "nang_luong": 0.732
+  },
+  {
+   "t": 27.307,
+   "manh": false,
+   "nang_luong": 0.714
+  },
+  {
+   "t": 27.771,
+   "manh": true,
+   "nang_luong": 0.693
+  },
+  {
+   "t": 28.235,
+   "manh": false,
+   "nang_luong": 0.725
+  },
+  {
+   "t": 28.7,
+   "manh": false,
+   "nang_luong": 0.709
+  },
+  {
+   "t": 29.141,
+   "manh": false,
+   "nang_luong": 0.713
+  },
+  {
+   "t": 29.582,
+   "manh": true,
+   "nang_luong": 0.734
+  },
+  {
+   "t": 30.023,
+   "manh": false,
+   "nang_luong": 0.689
+  },
+  {
+   "t": 30.534,
+   "manh": false,
+   "nang_luong": 0.662
+  },
+  {
+   "t": 30.999,
+   "manh": false,
+   "nang_luong": 0.637
+  },
+  {
+   "t": 31.463,
+   "manh": true,
+   "nang_luong": 0.611
+  },
+  {
+   "t": 31.927,
+   "manh": false,
+   "nang_luong": 0.654
+  },
+  {
+   "t": 32.392,
+   "manh": false,
+   "nang_luong": 0.722
+  },
+  {
+   "t": 32.856,
+   "manh": false,
+   "nang_luong": 0.761
+  },
+  {
+   "t": 33.297,
+   "manh": true,
+   "nang_luong": 0.653
+  },
+  {
+   "t": 33.762,
+   "manh": false,
+   "nang_luong": 0.501
+  },
+  {
+   "t": 34.226,
+   "manh": false,
+   "nang_luong": 0.324
+  },
+  {
+   "t": 34.691,
+   "manh": false,
+   "nang_luong": 0.074
+  }
+ ]
+}
